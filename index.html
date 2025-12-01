@@ -311,10 +311,81 @@
       min-height: 100vh;
     }
 
+    /* ========== MENU DE NAVEGAÇÃO ========== */
+    .nav-menu {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(90deg, #0B3353 0%, #09283f 100%);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      z-index: 2000;
+      padding: 8px 0;
+    }
+
+    .nav-menu-content {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .nav-menu-title {
+      color: white;
+      font-weight: 700;
+      font-size: 14px;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .nav-menu-links {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .nav-menu-link {
+      color: white;
+      text-decoration: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      transition: all 0.2s;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .nav-menu-link:hover {
+      background: var(--laranja);
+      color: white;
+      transform: translateY(-1px);
+    }
+
+    .nav-menu-link.active {
+      background: var(--laranja);
+      color: white;
+    }
+
+    /* Ajuste para páginas com menu */
+    body {
+      padding-top: 50px;
+    }
+
+    .auth-page {
+      padding-top: 60px;
+    }
+
     /* ========== BADGE PROTÓTIPO ========== */
     .prototype-badge {
       position: fixed;
-      top: 20px;
+      top: 50px;
       right: 20px;
       background: var(--laranja);
       color: white;
@@ -379,6 +450,24 @@
   </style>
 </head>
 <body>
+
+<!-- ========== MENU DE NAVEGAÇÃO FIXO ========== -->
+<nav class="nav-menu">
+  <div class="nav-menu-content">
+    <div class="nav-menu-title">
+      <span>📊</span>
+      <span>Navegação do Protótipo</span>
+    </div>
+    <div class="nav-menu-links">
+      <a href="#" class="nav-menu-link" onclick="showPage('loginPage'); return false;">Login</a>
+      <a href="#" class="nav-menu-link" onclick="showPage('cadastroPage'); return false;">Cadastro</a>
+      <a href="#" class="nav-menu-link" onclick="showPage('recuperarPage'); return false;">Recuperar Senha</a>
+      <a href="#" class="nav-menu-link" onclick="showPage('resetPage'); return false;">Reset Senha</a>
+      <a href="#" class="nav-menu-link" onclick="showPage('indexPage'); return false;">Dashboard</a>
+      <a href="#" class="nav-menu-link" onclick="showPage('quemSomosPage'); return false;">Quem Somos</a>
+    </div>
+  </div>
+</nav>
 
 <div class="prototype-badge">🎨 PROTÓTIPO INTERATIVO</div>
 
@@ -502,6 +591,40 @@
         </div>
 
         <button class="btn btn-primary" type="submit">Enviar link de recuperação</button>
+
+        <div class="small-note" style="margin-top:14px;">
+          <a class="forgot" onclick="showPage('loginPage')">Voltar ao login</a>
+        </div>
+      </form>
+    </section>
+  </main>
+</div>
+
+<!-- ========== PÁGINA RESET SENHA (Redefinir Senha) ========== -->
+<div id="resetPage" class="page auth-page">
+  <main class="center-wrap" role="main">
+    <section class="logo">
+      <div class="logo-placeholder">SPA</div>
+      <div class="brand-sub">
+        <div style="font-size:18px;font-weight:700;color:var(--azul)">SPA</div>
+        <div style="font-size:13px;color:rgba(11,51,83,0.8);margin-top:2px">Sistema de Perfil Discente</div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Redefinir Senha</h2>
+      <form id="resetForm">
+        <div class="form-group">
+          <label for="novaSenha">Nova Senha</label>
+          <input id="novaSenha" name="senha" type="password" placeholder="Digite sua nova senha" required />
+        </div>
+
+        <div class="form-group">
+          <label for="confirmarNovaSenha">Confirmar Nova Senha</label>
+          <input id="confirmarNovaSenha" name="confirmar_senha" type="password" placeholder="Confirme sua nova senha" required />
+        </div>
+
+        <button class="btn btn-primary" type="submit">Salvar nova senha</button>
 
         <div class="small-note" style="margin-top:14px;">
           <a class="forgot" onclick="showPage('loginPage')">Voltar ao login</a>
@@ -709,6 +832,37 @@
       targetPage.classList.add('active');
       window.scrollTo(0, 0);
     }
+    
+    // Atualiza o menu ativo
+    updateActiveMenu(pageId);
+  }
+
+  // ========== ATUALIZAR MENU ATIVO ==========
+  function updateActiveMenu(pageId) {
+    // Remove classe active de todos os links
+    document.querySelectorAll('.nav-menu-link').forEach(link => {
+      link.classList.remove('active');
+    });
+    
+    // Mapeia pageId para texto do link
+    const pageMap = {
+      'loginPage': 'Login',
+      'cadastroPage': 'Cadastro',
+      'recuperarPage': 'Recuperar Senha',
+      'resetPage': 'Reset Senha',
+      'indexPage': 'Dashboard',
+      'quemSomosPage': 'Quem Somos'
+    };
+    
+    // Adiciona classe active ao link correspondente
+    const linkText = pageMap[pageId];
+    if (linkText) {
+      document.querySelectorAll('.nav-menu-link').forEach(link => {
+        if (link.textContent.trim() === linkText) {
+          link.classList.add('active');
+        }
+      });
+    }
   }
 
   // ========== LOGIN ==========
@@ -738,7 +892,27 @@
   // ========== RECUPERAR SENHA ==========
   document.getElementById('recuperarForm')?.addEventListener('submit', function(e) {
     e.preventDefault();
-    alert('Link de recuperação enviado para seu e-mail!');
+    alert('Link de recuperação enviado para seu e-mail! Redirecionando para redefinir senha...');
+    showPage('resetPage');
+  });
+
+  // ========== RESET SENHA ==========
+  document.getElementById('resetForm')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const novaSenha = document.getElementById('novaSenha').value;
+    const confirmarSenha = document.getElementById('confirmarNovaSenha').value;
+    
+    if (novaSenha !== confirmarSenha) {
+      alert('As senhas não coincidem!');
+      return;
+    }
+    
+    if (novaSenha.length < 8) {
+      alert('A senha deve ter pelo menos 8 caracteres!');
+      return;
+    }
+    
+    alert('Senha redefinida com sucesso! Redirecionando para login...');
     showPage('loginPage');
   });
 
@@ -867,6 +1041,7 @@
   document.addEventListener('DOMContentLoaded', function() {
     // Garante que apenas a página de login está visível no início
     showPage('loginPage');
+    updateActiveMenu('loginPage');
   });
 </script>
 

@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Protótipo de Alta Fidelidade • SPA FMPSC</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root{
+      --azul: #0B3353;
+      --laranja: #E78E74;
+      --branco: #FFFFFF;
+      --muted: rgba(11,51,83,0.65);
+      --card-radius: 12px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      background: linear-gradient(180deg, var(--branco) 0%, #fbfbfb 100%);
+      color: var(--azul);
+      font-family: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      padding-bottom: 40px;
+      margin: 0;
+    }
+
+    /* Navbar */
+    .navbar {
+      background: linear-gradient(90deg, #0B3353 0%, #09283f 100%);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .nav-logo {
+      width: 56px;
+      height: auto;
+      object-fit: contain;
+      padding: 6px;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 0 6px rgba(0, 0, 0, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.7);
+    }
+
+    .navbar-brand {
+      color: var(--branco);
+      font-weight: 700;
+    }
+
+    /* Cards */
+    .card {
+      border-radius: var(--card-radius);
+      box-shadow: 0 8px 26px rgba(11,51,83,0.06);
+      border: 1px solid rgba(11,51,83,0.06);
+      margin-bottom: 20px;
+    }
+
+    .card-header {
+      background: linear-gradient(90deg, var(--azul), #09283f);
+      color: #fff;
+      font-weight: 700;
+      padding: 10px 16px;
+      border-top-left-radius: var(--card-radius);
+      border-top-right-radius: var(--card-radius);
+    }
+
+    /* Form labels */
+    .form-label {
+      font-weight: 600;
+      color: var(--azul);
+      font-size: 14px;
+    }
+
+    /* Buttons */
+    .btn-primary {
+      background: var(--azul);
+      border: 0;
+      color: var(--branco);
+      font-weight: 700;
+      border-radius: 8px;
+      padding: 10px 20px;
+    }
+
+    .btn-primary:hover {
+      opacity: 0.95;
+      background: var(--azul);
+    }
+
+    .btn-outline-primary {
+      color: var(--azul);
+      border-color: rgba(11,51,83,0.12);
+      background: transparent;
+      font-weight: 700;
+      border-radius: 8px;
+    }
+
+    .btn-outline-primary:hover {
+      background: var(--laranja);
+      color: var(--branco);
+      border-color: var(--laranja);
+    }
+
+    /* Footer */
+    .footer-ilab {
+      background: #0B3353;
+      color: white;
+      padding: 30px 0;
+      margin-top: 60px;
+    }
+
+    .footer-ilab .footer-link {
+      color: white;
+      font-size: 15px;
+      text-decoration: none;
+      opacity: 0.85;
+      transition: opacity 0.3s;
+    }
+
+    .footer-ilab .footer-link:hover {
+      opacity: 1;
+    }
+
+    .footer-ilab .footer-copy {
+      font-size: 13px;
+      opacity: 0.65;
+      margin-top: 10px;
+    }
+
+    /* Mock Chart Area */
+    .mock-chart {
+      background: #f8f9fa;
+      border: 2px dashed #dee2e6;
+      border-radius: 8px;
+      padding: 60px 20px;
+      text-align: center;
+      color: var(--muted);
+      min-height: 400px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .mock-chart::before {
+      content: "📊 Área de Visualização de Gráficos";
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    /* Responsive */
+    @media (max-width: 767px) {
+      .nav-logo {
+        display: none;
+      }
+      .navbar-brand {
+        font-size: 1rem;
+      }
+    }
+
+    .prototype-badge {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: var(--laranja);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      z-index: 1000;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+  </style>
+</head>
+<body>
+
+<div class="prototype-badge">🎨 PROTÓTIPO DE ALTA FIDELIDADE</div>
+
+<nav class="navbar navbar-expand-lg shadow-sm mb-4">
+  <div class="container-fluid d-flex justify-content-between align-items-center">
+    <div class="d-flex align-items-center gap-3">
+      <div class="nav-logo" style="width: 56px; height: 56px; background: white; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 24px;">📊</div>
+      <div class="text-white fw-bold navbar-brand">Módulo de Análises</div>
+    </div>
+
+    <div class="d-flex align-items-center gap-2">
+      <button class="btn btn-outline-light btn-sm">❓ Suporte</button>
+      <div class="text-white me-3 small">
+        Bem-vindo, <strong>Usuário Exemplo</strong><br>
+        <span style="opacity: 0.8;">usuario@aluno.fmpsc.edu.br</span>
+      </div>
+      <button class="btn btn-success btn-sm">📤 Enviar CSV</button>
+      <button class="btn btn-outline-light btn-sm">↻</button>
+      <a href="#" class="btn btn-link btn-sm text-white">Sair</a>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="row g-3">
+    <!-- LEFT PANEL -->
+    <aside class="col-12 col-md-4">
+      <div class="card">
+        <div class="card-header">Arquivos CSV</div>
+        <div class="card-body">
+          <label class="form-label small">Arquivo base (para análise)</label>
+          <select class="form-select mb-2">
+            <option value="">Selecione um CSV</option>
+            <option value="arquivo1.csv">arquivo1.csv</option>
+            <option value="arquivo2.csv">arquivo2.csv</option>
+          </select>
+
+          <label class="form-label small">Comparar com (opcional)</label>
+          <select class="form-select mb-2">
+            <option value="">(nenhum)</option>
+            <option value="arquivo1.csv">arquivo1.csv</option>
+            <option value="arquivo2.csv">arquivo2.csv</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">Configuração</div>
+        <div class="card-body">
+          <label class="form-label">Coluna principal (mesma nos 2 arquivos)</label>
+          <select class="form-select mb-2">
+            <option value="">Selecione um arquivo primeiro</option>
+            <option value="coluna1">Coluna 1</option>
+            <option value="coluna2">Coluna 2</option>
+          </select>
+
+          <label class="form-label">Agrupar por (opcional)</label>
+          <select class="form-select mb-2">
+            <option value="">Nenhum agrupamento</option>
+            <option value="grupo1">Grupo 1</option>
+          </select>
+
+          <label class="form-label">Tipo de gráfico</label>
+          <select class="form-select mb-3">
+            <option value="bar">Barras</option>
+            <option value="pie">Pizza</option>
+            <option value="line">Linha</option>
+            <option value="histogram">Histograma</option>
+          </select>
+
+          <div class="mb-3 small text-muted" style="padding: 10px; border: 1px dashed rgba(11,51,83,0.06); border-radius: 8px; background: #f8f9fa;">
+            <strong>Filtros:</strong> Serão exibidos aqui após selecionar um arquivo
+          </div>
+
+          <button class="btn btn-primary w-100">Gerar Gráfico</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">Comparar</div>
+        <div class="card-body">
+          <p class="small text-muted mb-2">Escolha um arquivo base (acima) e um arquivo para comparar. A comparação exige que a <strong>mesma coluna</strong> exista nos dois arquivos.</p>
+          <div class="d-grid gap-2">
+            <button class="btn btn-outline-primary">Gerar e Comparar</button>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- RIGHT PANEL -->
+    <main class="col-12 col-md-8">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <span>Resultado</span>
+          <div>
+            <button class="btn btn-success btn-sm">💾 Salvar todos</button>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="mock-chart"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<footer class="footer-ilab">
+  <div class="container py-4 text-center">
+    <a href="#" class="footer-link">Quem somos</a>
+    <p class="footer-copy mt-2">
+      © 2024 iLab — Sistema de Processamento e Análises.
+    </p>
+  </div>
+</footer>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>
+

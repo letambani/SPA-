@@ -428,15 +428,133 @@
 
     .form-select:hover, select:hover {
       border-color: var(--azul);
+      box-shadow: 0 0 0 3px rgba(11,51,83,0.1);
+    }
+
+    .form-select:focus, select:focus {
+      border-color: var(--azul);
+      box-shadow: 0 0 0 3px rgba(11,51,83,0.15);
+      outline: none;
     }
 
     button, .btn, a.btn {
       cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    button:hover, .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    button:active, .btn:active {
+      transform: translateY(0);
+    }
+
+    /* ========== FEEDBACK VISUAL ========== */
+    .alert-message {
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin: 10px 0;
+      font-size: 14px;
+      display: none;
+      animation: slideDown 0.3s ease;
+    }
+
+    .alert-message.show {
+      display: block;
+    }
+
+    .alert-success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .alert-error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    .alert-info {
+      background: #d1ecf1;
+      color: #0c5460;
+      border: 1px solid #bee5eb;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ========== LOADING STATE ========== */
+    .loading {
+      opacity: 0.6;
+      pointer-events: none;
+      position: relative;
+    }
+
+    .loading::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 20px;
+      height: 20px;
+      margin: -10px 0 0 -10px;
+      border: 3px solid var(--azul);
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* ========== INTERAÇÕES DE FORMULÁRIO ========== */
+    input:invalid:not(:placeholder-shown) {
+      border-color: #dc3545;
+    }
+
+    input:valid:not(:placeholder-shown) {
+      border-color: #28a745;
     }
 
     /* ========== MODAL ========== */
     .modal-backdrop {
       background: rgba(0,0,0,0.5);
+    }
+
+    /* ========== HOVER EFFECTS ========== */
+    .card:hover {
+      box-shadow: 0 12px 32px rgba(11,51,83,0.12);
+      transform: translateY(-2px);
+      transition: all 0.3s ease;
+    }
+
+    .nav-menu-link:hover {
+      transform: translateY(-2px);
+    }
+
+    /* ========== CLICKABLE ELEMENTS ========== */
+    a, button, .btn, .nav-menu-link, .forgot, .footer-link {
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* ========== DISABLED STATE ========== */
+    button:disabled, .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      pointer-events: none;
     }
   </style>
 </head>
@@ -476,6 +594,8 @@
     <section class="card">
       <h2>Login</h2>
       <form id="loginForm">
+        <div id="loginMessage" class="alert-message"></div>
+        
         <div class="form-group">
           <label for="email">E-mail</label>
           <input id="email" name="email" type="email" placeholder="seu@exemplo.com" required />
@@ -500,7 +620,8 @@
         </div>
 
         <div class="small-note" style="margin-top:12px">
-          Não possui conta? Clique em <strong>Cadastrar</strong>.
+          Não possui conta? Clique em <strong>Cadastrar</strong>.<br>
+          <small style="color: var(--muted);">Credenciais de teste: teste@teste.com.br / 1234</small>
         </div>
       </form>
     </section>
@@ -521,6 +642,8 @@
     <section class="card">
       <h2>Cadastrar Conta</h2>
       <form id="formCadastro">
+        <div id="cadastroMessage" class="alert-message"></div>
+        
         <div class="form-group">
           <label>Nome completo</label>
           <input type="text" name="nome" placeholder="Digite o nome completo" required />
@@ -576,6 +699,8 @@
     <section class="card">
       <h2>Recuperar Senha</h2>
       <form id="recuperarForm">
+        <div id="recuperarMessage" class="alert-message"></div>
+        
         <div class="form-group">
           <label for="emailRecuperar">E-mail cadastrado</label>
           <input id="emailRecuperar" name="email" type="email" placeholder="Digite seu e-mail" required />
@@ -605,6 +730,8 @@
     <section class="card">
       <h2>Redefinir Senha</h2>
       <form id="resetForm">
+        <div id="resetMessage" class="alert-message"></div>
+        
         <div class="form-group">
           <label for="novaSenha">Nova Senha</label>
           <input id="novaSenha" name="senha" type="password" placeholder="Digite sua nova senha" required />
@@ -698,7 +825,7 @@
               <option value="histogram">Histograma</option>
             </select>
 
-            <div id="filtersArea" class="mb-3 small text-muted" style="padding: 10px; border: 1px dashed rgba(11,51,83,0.06); border-radius: 8px; background: #f8f9fa;">
+            <div id="filtersArea" class="mb-3 small text-muted" style="padding: 10px; border: 1px dashed rgba(11,51,83,0.06); border-radius: 8px; background: #f8f9fa; max-height: 220px; overflow-y: auto;">
               <strong>Filtros:</strong> Serão exibidos aqui após selecionar um arquivo
             </div>
 
@@ -856,35 +983,136 @@
     }
   }
 
+  // ========== FUNÇÃO PARA MOSTRAR MENSAGEM ==========
+  function showMessage(elementId, message, type = 'info') {
+    const element = document.getElementById(elementId);
+    if (!element) return;
+    
+    element.textContent = message;
+    element.className = `alert-message alert-${type} show`;
+    
+    setTimeout(() => {
+      element.classList.remove('show');
+      setTimeout(() => {
+        element.textContent = '';
+      }, 300);
+    }, 3000);
+  }
+
   // ========== LOGIN ==========
   document.getElementById('loginForm')?.addEventListener('submit', function(e) {
     e.preventDefault();
     
     const email = document.getElementById('email').value.trim().toLowerCase();
     const senha = document.getElementById('password').value;
+    const submitBtn = this.querySelector('button[type="submit"]');
     
-    // Validação de credenciais
-    if (email === 'teste@teste.com.br' && senha === '1234') {
-      // Login bem-sucedido - vai para o dashboard
-      showPage('indexPage');
-    } else {
-      // Credenciais inválidas
-      alert('E-mail ou senha incorretos. Use: teste@teste.com.br / 1234');
+    // Validação básica
+    if (!email || !senha) {
+      showMessage('loginMessage', 'Por favor, preencha todos os campos.', 'error');
+      return;
     }
+    
+    // Adiciona loading
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Entrando...';
+    
+    // Simula delay de autenticação
+    setTimeout(() => {
+      // Validação de credenciais
+      if (email === 'teste@teste.com.br' && senha === '1234') {
+        showMessage('loginMessage', 'Login realizado com sucesso!', 'success');
+        setTimeout(() => {
+          showPage('indexPage');
+        }, 500);
+      } else {
+        showMessage('loginMessage', 'E-mail ou senha incorretos. Use: teste@teste.com.br / 1234', 'error');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Entrar';
+      }
+    }, 800);
   });
 
   // ========== CADASTRO ==========
   document.getElementById('formCadastro')?.addEventListener('submit', function(e) {
     e.preventDefault();
-    alert('Cadastro realizado com sucesso! Redirecionando para login...');
-    showPage('loginPage');
+    
+    const nome = this.querySelector('[name="nome"]').value.trim();
+    const cpf = this.querySelector('[name="cpf"]').value;
+    const email = this.querySelector('[name="email"]').value.trim().toLowerCase();
+    const cargo = this.querySelector('[name="cargo"]').value.trim();
+    const senha = this.querySelector('[name="senha"]').value;
+    const confirmar = this.querySelector('[name="confirmar"]').value;
+    
+    // Validações
+    if (!nome || !cpf || !email || !cargo || !senha || !confirmar) {
+      showMessage('cadastroMessage', 'Por favor, preencha todos os campos.', 'error');
+      return;
+    }
+    
+    // Validação de email institucional
+    if (!email.includes('@fmpsc.edu.br') && !email.includes('@aluno.fmpsc.edu.br')) {
+      showMessage('cadastroMessage', 'Use um e-mail institucional válido (@fmpsc.edu.br).', 'error');
+      return;
+    }
+    
+    // Validação de senha
+    if (senha.length < 8) {
+      showMessage('cadastroMessage', 'A senha deve ter pelo menos 8 caracteres.', 'error');
+      return;
+    }
+    
+    if (senha !== confirmar) {
+      showMessage('cadastroMessage', 'As senhas não coincidem.', 'error');
+      return;
+    }
+    
+    // Validação de CPF
+    const cpfNumeros = cpf.replace(/\D/g, '');
+    if (cpfNumeros.length !== 11) {
+      showMessage('cadastroMessage', 'CPF inválido. Verifique e tente novamente.', 'error');
+      return;
+    }
+    
+    const submitBtn = this.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Cadastrando...';
+    
+    // Simula cadastro
+    setTimeout(() => {
+      showMessage('cadastroMessage', 'Cadastro realizado com sucesso! Redirecionando...', 'success');
+      setTimeout(() => {
+        showPage('loginPage');
+      }, 1500);
+    }, 1000);
   });
 
   // ========== RECUPERAR SENHA ==========
   document.getElementById('recuperarForm')?.addEventListener('submit', function(e) {
     e.preventDefault();
-    alert('Link de recuperação enviado para seu e-mail! Redirecionando para redefinir senha...');
-    showPage('resetPage');
+    
+    const email = this.querySelector('[name="email"]').value.trim();
+    
+    if (!email) {
+      showMessage('recuperarMessage', 'Por favor, informe seu e-mail.', 'error');
+      return;
+    }
+    
+    if (!email.includes('@')) {
+      showMessage('recuperarMessage', 'E-mail inválido.', 'error');
+      return;
+    }
+    
+    const submitBtn = this.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Enviando...';
+    
+    setTimeout(() => {
+      showMessage('recuperarMessage', 'Link de recuperação enviado para seu e-mail!', 'success');
+      setTimeout(() => {
+        showPage('resetPage');
+      }, 2000);
+    }, 1000);
   });
 
   // ========== RESET SENHA ==========
@@ -893,18 +1121,31 @@
     const novaSenha = document.getElementById('novaSenha').value;
     const confirmarSenha = document.getElementById('confirmarNovaSenha').value;
     
-    if (novaSenha !== confirmarSenha) {
-      alert('As senhas não coincidem!');
+    if (!novaSenha || !confirmarSenha) {
+      showMessage('resetMessage', 'Por favor, preencha todos os campos.', 'error');
       return;
     }
     
     if (novaSenha.length < 8) {
-      alert('A senha deve ter pelo menos 8 caracteres!');
+      showMessage('resetMessage', 'A senha deve ter pelo menos 8 caracteres!', 'error');
       return;
     }
     
-    alert('Senha redefinida com sucesso! Redirecionando para login...');
-    showPage('loginPage');
+    if (novaSenha !== confirmarSenha) {
+      showMessage('resetMessage', 'As senhas não coincidem!', 'error');
+      return;
+    }
+    
+    const submitBtn = this.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Salvando...';
+    
+    setTimeout(() => {
+      showMessage('resetMessage', 'Senha redefinida com sucesso!', 'success');
+      setTimeout(() => {
+        showPage('loginPage');
+      }, 1500);
+    }, 1000);
   });
 
   // ========== TOGGLE PASSWORD ==========
@@ -948,11 +1189,14 @@
       document.getElementById('filtersArea').innerHTML = `
         <strong>Filtros disponíveis:</strong><br>
         <div class="mt-2">
-          <label class="form-check-label small">
-            <input type="checkbox" class="form-check-input me-1"> Filtro 1
-          </label><br>
-          <label class="form-check-label small">
-            <input type="checkbox" class="form-check-input me-1"> Filtro 2
+          <label class="form-check-label small" style="display: block; margin-bottom: 8px; cursor: pointer;">
+            <input type="checkbox" class="form-check-input me-1" onchange="updateFilters()"> Categoria A
+          </label>
+          <label class="form-check-label small" style="display: block; margin-bottom: 8px; cursor: pointer;">
+            <input type="checkbox" class="form-check-input me-1" onchange="updateFilters()"> Categoria B
+          </label>
+          <label class="form-check-label small" style="display: block; margin-bottom: 8px; cursor: pointer;">
+            <input type="checkbox" class="form-check-input me-1" onchange="updateFilters()"> Categoria C
           </label>
         </div>
       `;
@@ -967,29 +1211,60 @@
     const arquivo = document.getElementById('arquivoSelect').value;
     const coluna = document.getElementById('colunaSelect').value;
     const tipo = document.getElementById('tipoSelect').value;
+    const groupBy = document.getElementById('colunaGroupBy').value;
     
     if (!arquivo || !coluna) {
-      alert('Por favor, selecione um arquivo e uma coluna!');
+      const container = document.getElementById('graficoContainer');
+      container.innerHTML = `
+        <div class="alert-message alert-error show">
+          Por favor, selecione um arquivo e uma coluna para gerar o gráfico.
+        </div>
+      `;
+      setTimeout(() => {
+        container.innerHTML = '<p class="text-center text-secondary">Nenhum gráfico gerado ainda. Selecione um arquivo e configure as opções para gerar gráficos.</p>';
+      }, 3000);
       return;
     }
     
     const container = document.getElementById('graficoContainer');
-    container.innerHTML = `
-      <div class="card">
-        <div class="card-header">Gráfico de ${tipo} - ${coluna}</div>
-        <div class="card-body">
-          <div class="mock-chart" style="min-height: 300px;">
-            📊 Gráfico de ${tipo} gerado com sucesso!<br>
-            <small style="color: var(--muted);">Arquivo: ${arquivo}<br>Coluna: ${coluna}</small>
-          </div>
-          <div class="mt-3 text-end">
-            <button class="btn btn-success btn-sm" onclick="alert('Gráfico salvo!')">💾 Salvar</button>
+    container.innerHTML = '<div class="text-center p-4"><div class="loading"></div><p class="mt-3">Gerando gráfico...</p></div>';
+    
+    // Simula geração do gráfico
+    setTimeout(() => {
+      const tipoNome = {
+        'bar': 'Barras',
+        'pie': 'Pizza',
+        'line': 'Linha',
+        'histogram': 'Histograma'
+      };
+      
+      container.innerHTML = `
+        <div class="card">
+          <div class="card-header">Gráfico de ${tipoNome[tipo]} - ${coluna}${groupBy ? ' (Agrupado por: ' + groupBy + ')' : ''}</div>
+          <div class="card-body">
+            <div class="mock-chart" style="min-height: 300px;">
+              📊 Gráfico de ${tipoNome[tipo]} gerado com sucesso!<br>
+              <small style="color: var(--muted);">Arquivo: ${arquivo}<br>Coluna: ${coluna}${groupBy ? '<br>Agrupado por: ' + groupBy : ''}</small>
+            </div>
+            <div class="mt-3 d-flex justify-content-between align-items-center">
+              <div>
+                <button class="btn btn-outline-primary btn-sm" onclick="gerarGrafico()">🔄 Regenerar</button>
+              </div>
+              <div>
+                <button class="btn btn-success btn-sm" onclick="salvarGrafico('${tipo}', '${coluna}')">💾 Salvar</button>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    `;
-    
-    document.getElementById('btnSalvarTodos').classList.remove('d-none');
+      `;
+      
+      document.getElementById('btnSalvarTodos').classList.remove('d-none');
+    }, 1500);
+  }
+  
+  // ========== SALVAR GRÁFICO ==========
+  function salvarGrafico(tipo, coluna) {
+    alert(`Gráfico de ${tipo} (${coluna}) salvo com sucesso!`);
   }
 
   // ========== GERAR COMPARAÇÃO ==========
@@ -999,40 +1274,101 @@
     const coluna = document.getElementById('colunaSelect').value;
     
     if (!arquivo1 || !arquivo2 || !coluna) {
-      alert('Por favor, selecione ambos os arquivos e uma coluna!');
+      const container = document.getElementById('graficoContainer');
+      container.innerHTML = `
+        <div class="alert-message alert-error show">
+          Por favor, selecione ambos os arquivos e uma coluna para comparar.
+        </div>
+      `;
+      setTimeout(() => {
+        container.innerHTML = '<p class="text-center text-secondary">Nenhum gráfico gerado ainda. Selecione um arquivo e configure as opções para gerar gráficos.</p>';
+      }, 3000);
+      return;
+    }
+    
+    if (arquivo1 === arquivo2) {
+      const container = document.getElementById('graficoContainer');
+      container.innerHTML = `
+        <div class="alert-message alert-error show">
+          Selecione arquivos diferentes para comparar.
+        </div>
+      `;
+      setTimeout(() => {
+        container.innerHTML = '<p class="text-center text-secondary">Nenhum gráfico gerado ainda. Selecione um arquivo e configure as opções para gerar gráficos.</p>';
+      }, 3000);
       return;
     }
     
     const container = document.getElementById('graficoContainer');
-    container.innerHTML = `
-      <div class="card mb-3">
-        <div class="card-header">Base - ${arquivo1}</div>
-        <div class="card-body">
-          <div class="mock-chart" style="min-height: 250px;">📊 Gráfico Base</div>
-        </div>
-      </div>
-      <div class="card mb-3">
-        <div class="card-header">Comparador - ${arquivo2}</div>
-        <div class="card-body">
-          <div class="mock-chart" style="min-height: 250px;">📊 Gráfico Comparador</div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-header">Variação %</div>
-        <div class="card-body">
-          <div class="mock-chart" style="min-height: 250px;">📊 Gráfico de Variação</div>
-        </div>
-      </div>
-    `;
+    container.innerHTML = '<div class="text-center p-4"><div class="loading"></div><p class="mt-3">Gerando comparação...</p></div>';
     
-    document.getElementById('btnSalvarTodos').classList.remove('d-none');
+    setTimeout(() => {
+      container.innerHTML = `
+        <div class="card mb-3">
+          <div class="card-header">Base - ${arquivo1}</div>
+          <div class="card-body">
+            <div class="mock-chart" style="min-height: 250px;">📊 Gráfico Base - ${coluna}</div>
+          </div>
+        </div>
+        <div class="card mb-3">
+          <div class="card-header">Comparador - ${arquivo2}</div>
+          <div class="card-body">
+            <div class="mock-chart" style="min-height: 250px;">📊 Gráfico Comparador - ${coluna}</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">Variação % (Comparador vs Base)</div>
+          <div class="card-body">
+            <div class="mock-chart" style="min-height: 250px;">📊 Gráfico de Variação Percentual</div>
+            <div class="mt-3 text-end">
+              <button class="btn btn-success btn-sm" onclick="salvarGrafico('comparacao', '${coluna}')">💾 Salvar Comparação</button>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      document.getElementById('btnSalvarTodos').classList.remove('d-none');
+    }, 1500);
   }
+
+  // ========== ATUALIZAR FILTROS ==========
+  function updateFilters() {
+    const checkboxes = document.querySelectorAll('#filtersArea input[type="checkbox"]');
+    const selecionados = Array.from(checkboxes).filter(cb => cb.checked).length;
+    console.log(`${selecionados} filtro(s) selecionado(s)`);
+  }
+
+  // ========== LIMPAR FORMULÁRIOS AO MUDAR DE PÁGINA ==========
+  const originalShowPage = showPage;
+  showPage = function(pageId) {
+    // Limpa mensagens de alerta
+    document.querySelectorAll('.alert-message').forEach(msg => {
+      msg.classList.remove('show');
+      msg.textContent = '';
+    });
+    
+    // Reseta botões
+    document.querySelectorAll('button[type="submit"]').forEach(btn => {
+      btn.disabled = false;
+      if (btn.textContent.includes('...')) {
+        const originalText = btn.getAttribute('data-original-text') || 'Enviar';
+        btn.textContent = originalText;
+      }
+    });
+    
+    originalShowPage(pageId);
+  };
 
   // Inicialização
   document.addEventListener('DOMContentLoaded', function() {
     // Garante que apenas a página de login está visível no início
     showPage('loginPage');
     updateActiveMenu('loginPage');
+    
+    // Salva textos originais dos botões
+    document.querySelectorAll('button[type="submit"]').forEach(btn => {
+      btn.setAttribute('data-original-text', btn.textContent);
+    });
   });
 </script>
 

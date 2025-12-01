@@ -714,7 +714,18 @@
   // ========== LOGIN ==========
   document.getElementById('loginForm')?.addEventListener('submit', function(e) {
     e.preventDefault();
-    showPage('indexPage');
+    
+    const email = document.getElementById('email').value.trim().toLowerCase();
+    const senha = document.getElementById('password').value;
+    
+    // Validação de credenciais
+    if (email === 'teste@teste.com.br' && senha === '1234') {
+      // Login bem-sucedido - vai para o dashboard
+      showPage('indexPage');
+    } else {
+      // Credenciais inválidas
+      alert('E-mail ou senha incorretos. Use: teste@teste.com.br / 1234');
+    }
   });
 
   // ========== CADASTRO ==========

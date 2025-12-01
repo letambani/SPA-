@@ -13,13 +13,13 @@
   
   <style>
     :root{
-      --azul: #0B3353;
-      --laranja: #E78E74;
       --branco: #FFFFFF;
+      --laranja: #E78E74;
+      --azul: #0B3353;
       --muted: rgba(11,51,83,0.65);
-      --card-radius: 12px;
       --radius-xl: 14px;
       --card-width: 360px;
+      --card-radius: 12px;
     }
 
     * {
@@ -27,20 +27,30 @@
     }
 
     body {
+      margin: 0;
+      font-family: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      -webkit-font-smoothing: antialiased;
       background: linear-gradient(180deg, var(--branco) 0%, #fbfbfb 100%);
       color: var(--azul);
-      font-family: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-      margin: 0;
-      -webkit-font-smoothing: antialiased;
     }
 
-    /* ========== PÁGINA DE LOGIN ========== */
-    #loginPage {
+    /* ========== ESTILOS GLOBAIS ========== */
+    .page {
+      display: none;
       min-height: 100vh;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    /* ========== PÁGINAS DE AUTENTICAÇÃO (Login, Cadastro, Recuperar) ========== */
+    .auth-page {
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 32px;
+      min-height: 100vh;
     }
 
     .center-wrap {
@@ -111,7 +121,7 @@
       font-weight: 600;
     }
 
-    input[type="email"], input[type="password"], input[type="text"] {
+    input[type="text"], input[type="email"], input[type="password"] {
       width: 100%;
       padding: 12px 14px;
       border-radius: 10px;
@@ -139,6 +149,7 @@
       color: var(--azul);
       text-decoration: none;
       font-weight: 600;
+      cursor: pointer;
     }
 
     .forgot:hover {
@@ -156,6 +167,7 @@
       text-align: center;
       font-weight: 700;
       transition: transform .08s ease, box-shadow .08s;
+      text-decoration: none;
     }
 
     .btn:active {
@@ -193,15 +205,11 @@
       margin-top: 8px;
     }
 
-    /* ========== PÁGINA INDEX (DASHBOARD) ========== */
-    #indexPage {
-      display: none;
-      padding-bottom: 40px;
-    }
-
+    /* ========== NAVBAR (Dashboard) ========== */
     .navbar {
       background: linear-gradient(90deg, #0B3353 0%, #09283f 100%);
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      padding: 12px 0;
     }
 
     .nav-logo {
@@ -250,6 +258,7 @@
       border-color: var(--laranja);
     }
 
+    /* ========== FOOTER ========== */
     .footer-ilab {
       background: #0B3353;
       color: white;
@@ -263,6 +272,7 @@
       text-decoration: none;
       opacity: 0.85;
       transition: opacity 0.3s;
+      cursor: pointer;
     }
 
     .footer-ilab .footer-link:hover {
@@ -275,6 +285,7 @@
       margin-top: 10px;
     }
 
+    /* ========== MOCK CHART ========== */
     .mock-chart {
       background: #f8f9fa;
       border: 2px dashed #dee2e6;
@@ -294,6 +305,13 @@
       font-weight: 600;
     }
 
+    /* ========== PÁGINA QUEM SOMOS ========== */
+    .quem-somos-page {
+      padding: 40px 20px;
+      min-height: 100vh;
+    }
+
+    /* ========== BADGE PROTÓTIPO ========== */
     .prototype-badge {
       position: fixed;
       top: 20px;
@@ -308,6 +326,7 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
 
+    /* ========== RESPONSIVE ========== */
     @media (min-width: 900px) {
       .center-wrap {
         flex-direction: row;
@@ -322,14 +341,49 @@
         font-size: 1rem;
       }
     }
+
+    /* ========== ANIMAÇÕES ========== */
+    .page {
+      animation: fadeIn 0.3s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ========== SELECTS E INPUTS INTERATIVOS ========== */
+    .form-select, select {
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .form-select:hover, select:hover {
+      border-color: var(--azul);
+    }
+
+    button, .btn, a.btn {
+      cursor: pointer;
+    }
+
+    /* ========== MODAL ========== */
+    .modal-backdrop {
+      background: rgba(0,0,0,0.5);
+    }
   </style>
 </head>
 <body>
 
-<div class="prototype-badge">🎨 PROTÓTIPO DE ALTA FIDELIDADE</div>
+<div class="prototype-badge">🎨 PROTÓTIPO INTERATIVO</div>
 
 <!-- ========== PÁGINA DE LOGIN ========== -->
-<div id="loginPage">
+<div id="loginPage" class="page active auth-page">
   <main class="center-wrap" role="main">
     <section class="logo">
       <div class="logo-placeholder">SPA</div>
@@ -341,7 +395,6 @@
 
     <section class="card">
       <h2>Login</h2>
-
       <form id="loginForm">
         <div class="form-group">
           <label for="email">E-mail</label>
@@ -352,21 +405,18 @@
           <label for="password">Senha</label>
           <div style="position:relative;">
             <input id="password" name="senha" type="password" placeholder="Digite sua senha" required />
-            <button type="button" id="togglePwd"
-                    style="position:absolute; right:8px; top:6px; height:32px; padding:6px 8px; border-radius:8px; border:0; background:transparent; cursor:pointer; color:var(--azul); font-weight:700;">
-              Mostrar
-            </button>
+            <button type="button" id="togglePwd" style="position:absolute; right:8px; top:6px; height:32px; padding:6px 8px; border-radius:8px; border:0; background:transparent; cursor:pointer; color:var(--azul); font-weight:700;">Mostrar</button>
           </div>
         </div>
 
         <div class="row-between" style="margin-bottom:12px;">
           <div></div>
-          <a href="#" class="forgot">Esqueci a senha</a>
+          <a class="forgot" onclick="showPage('recuperarPage')">Esqueci a senha</a>
         </div>
 
         <div>
           <button class="btn btn-primary" type="submit">Entrar</button>
-          <a href="#" class="btn btn-outline" role="button" id="btnCadastro">Cadastrar</a>
+          <a class="btn btn-outline" onclick="showPage('cadastroPage')">Cadastrar</a>
         </div>
 
         <div class="small-note" style="margin-top:12px">
@@ -377,9 +427,93 @@
   </main>
 </div>
 
+<!-- ========== PÁGINA DE CADASTRO ========== -->
+<div id="cadastroPage" class="page auth-page">
+  <main class="center-wrap" role="main">
+    <section class="logo">
+      <div class="logo-placeholder">SPA</div>
+      <div class="brand-sub">
+        <div style="font-size:18px;font-weight:700;color:var(--azul)">SPA</div>
+        <div style="font-size:13px;color:rgba(11,51,83,0.8);margin-top:2px">Sistema de Perfil Discente</div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Cadastrar Conta</h2>
+      <form id="formCadastro">
+        <div class="form-group">
+          <label>Nome completo</label>
+          <input type="text" name="nome" placeholder="Digite o nome completo" required />
+        </div>
+
+        <div class="form-group">
+          <label>CPF</label>
+          <input type="text" id="cpf" name="cpf" maxlength="14" placeholder="000.000.000-00" required />
+        </div>
+
+        <div class="form-group">
+          <label>E-mail institucional</label>
+          <input type="email" name="email" placeholder="exemplo@fmpsc.edu.br" required />
+        </div>
+
+        <div class="form-group">
+          <label>Cargo</label>
+          <input type="text" name="cargo" placeholder="Digite um cargo" required />
+        </div>
+
+        <div class="form-group">
+          <label>Senha</label>
+          <input type="password" name="senha" placeholder="Digite sua senha" required />
+        </div>
+
+        <div class="form-group">
+          <label>Confirmar senha</label>
+          <input type="password" name="confirmar" placeholder="Confirme sua senha" required />
+        </div>
+
+        <button type="submit" class="btn btn-primary">Cadastrar</button>
+        <a class="btn btn-outline" onclick="showPage('loginPage')">Voltar ao Login</a>
+
+        <div class="small-note" style="margin-top:12px">
+          Já possui conta? Clique em <strong>Voltar ao Login</strong>.
+        </div>
+      </form>
+    </section>
+  </main>
+</div>
+
+<!-- ========== PÁGINA RECUPERAR SENHA ========== -->
+<div id="recuperarPage" class="page auth-page">
+  <main class="center-wrap" role="main">
+    <section class="logo">
+      <div class="logo-placeholder">SPA</div>
+      <div class="brand-sub">
+        <div style="font-size:18px;font-weight:700;color:var(--azul)">SPA</div>
+        <div style="font-size:13px;color:rgba(11,51,83,0.8);margin-top:2px">Sistema de Perfil Discente</div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Recuperar Senha</h2>
+      <form id="recuperarForm">
+        <div class="form-group">
+          <label for="emailRecuperar">E-mail cadastrado</label>
+          <input id="emailRecuperar" name="email" type="email" placeholder="Digite seu e-mail" required />
+        </div>
+
+        <button class="btn btn-primary" type="submit">Enviar link de recuperação</button>
+
+        <div class="small-note" style="margin-top:14px;">
+          <a class="forgot" onclick="showPage('loginPage')">Voltar ao login</a>
+        </div>
+      </form>
+    </section>
+  </main>
+</div>
+
 <!-- ========== PÁGINA INDEX (DASHBOARD) ========== -->
-<div id="indexPage">
-  <nav class="navbar navbar-expand-lg shadow-sm mb-4">
+<div id="indexPage" class="page">
+  <nav class="navbar shadow-sm mb-4">
     <div class="container-fluid d-flex justify-content-between align-items-center">
       <div class="d-flex align-items-center gap-3">
         <div class="nav-logo">📊</div>
@@ -387,14 +521,14 @@
       </div>
 
       <div class="d-flex align-items-center gap-2">
-        <button class="btn btn-outline-light btn-sm">❓ Suporte</button>
+        <button class="btn btn-outline-light btn-sm" onclick="alert('Tutorial de suporte')">❓ Suporte</button>
         <div class="text-white me-3 small">
           Bem-vindo, <strong>Usuário Exemplo</strong><br>
           <span style="opacity: 0.8;">usuario@aluno.fmpsc.edu.br</span>
         </div>
-        <button class="btn btn-success btn-sm">📤 Enviar CSV</button>
-        <button class="btn btn-outline-light btn-sm">↻</button>
-        <a href="#" class="btn btn-link btn-sm text-white" id="btnLogout">Sair</a>
+        <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#uploadModal">📤 Enviar CSV</button>
+        <button class="btn btn-outline-light btn-sm" onclick="alert('Lista de arquivos atualizada')">↻</button>
+        <a class="btn btn-link btn-sm text-white" onclick="showPage('loginPage')">Sair</a>
       </div>
     </div>
   </nav>
@@ -403,63 +537,67 @@
     <div class="row g-3">
       <!-- LEFT PANEL -->
       <aside class="col-12 col-md-4">
-        <div class="card">
+        <div class="card mb-3">
           <div class="card-header">Arquivos CSV</div>
           <div class="card-body">
             <label class="form-label small">Arquivo base (para análise)</label>
-            <select class="form-select mb-2">
+            <select id="arquivoSelect" class="form-select mb-2" onchange="updateColumns()">
               <option value="">Selecione um CSV</option>
               <option value="arquivo1.csv">arquivo1.csv</option>
               <option value="arquivo2.csv">arquivo2.csv</option>
+              <option value="arquivo3.csv">arquivo3.csv</option>
             </select>
 
             <label class="form-label small">Comparar com (opcional)</label>
-            <select class="form-select mb-2">
+            <select id="arquivoCompare" class="form-select mb-2">
               <option value="">(nenhum)</option>
               <option value="arquivo1.csv">arquivo1.csv</option>
               <option value="arquivo2.csv">arquivo2.csv</option>
+              <option value="arquivo3.csv">arquivo3.csv</option>
             </select>
           </div>
         </div>
 
-        <div class="card">
+        <div class="card mb-3">
           <div class="card-header">Configuração</div>
           <div class="card-body">
             <label class="form-label">Coluna principal (mesma nos 2 arquivos)</label>
-            <select class="form-select mb-2">
+            <select id="colunaSelect" class="form-select mb-2">
               <option value="">Selecione um arquivo primeiro</option>
               <option value="coluna1">Coluna 1</option>
               <option value="coluna2">Coluna 2</option>
+              <option value="coluna3">Coluna 3</option>
             </select>
 
             <label class="form-label">Agrupar por (opcional)</label>
-            <select class="form-select mb-2">
+            <select id="colunaGroupBy" class="form-select mb-2">
               <option value="">Nenhum agrupamento</option>
               <option value="grupo1">Grupo 1</option>
+              <option value="grupo2">Grupo 2</option>
             </select>
 
             <label class="form-label">Tipo de gráfico</label>
-            <select class="form-select mb-3">
+            <select id="tipoSelect" class="form-select mb-3">
               <option value="bar">Barras</option>
               <option value="pie">Pizza</option>
               <option value="line">Linha</option>
               <option value="histogram">Histograma</option>
             </select>
 
-            <div class="mb-3 small text-muted" style="padding: 10px; border: 1px dashed rgba(11,51,83,0.06); border-radius: 8px; background: #f8f9fa;">
+            <div id="filtersArea" class="mb-3 small text-muted" style="padding: 10px; border: 1px dashed rgba(11,51,83,0.06); border-radius: 8px; background: #f8f9fa;">
               <strong>Filtros:</strong> Serão exibidos aqui após selecionar um arquivo
             </div>
 
-            <button class="btn btn-primary w-100">Gerar Gráfico</button>
+            <button class="btn btn-primary w-100" onclick="gerarGrafico()">Gerar Gráfico</button>
           </div>
         </div>
 
-        <div class="card">
+        <div class="card mb-3">
           <div class="card-header">Comparar</div>
           <div class="card-body">
             <p class="small text-muted mb-2">Escolha um arquivo base (acima) e um arquivo para comparar. A comparação exige que a <strong>mesma coluna</strong> exista nos dois arquivos.</p>
             <div class="d-grid gap-2">
-              <button class="btn btn-outline-primary">Gerar e Comparar</button>
+              <button class="btn btn-outline-primary" onclick="gerarComparacao()">Gerar e Comparar</button>
             </div>
           </div>
         </div>
@@ -471,20 +609,82 @@
           <div class="card-header d-flex justify-content-between align-items-center">
             <span>Resultado</span>
             <div>
-              <button class="btn btn-success btn-sm">💾 Salvar todos</button>
+              <button id="btnSalvarTodos" class="btn btn-success btn-sm d-none" onclick="alert('Gráficos salvos!')">💾 Salvar todos</button>
             </div>
           </div>
           <div class="card-body">
-            <div class="mock-chart"></div>
+            <div id="graficoContainer" class="d-flex flex-column gap-4">
+              <p class="text-center text-secondary">Nenhum gráfico gerado ainda. Selecione um arquivo e configure as opções para gerar gráficos.</p>
+            </div>
           </div>
         </div>
       </main>
     </div>
   </div>
 
-  <footer class="footer-ilab">
+  <!-- UPLOAD MODAL -->
+  <div class="modal fade" id="uploadModal" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Enviar CSV</h5>
+          <button class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <input type="file" id="csvFile" accept=".csv" class="form-control">
+          <div class="form-text small mt-2">Envie apenas arquivos .csv (mesmo nome pode sobrescrever).</div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button class="btn btn-success" onclick="alert('Arquivo enviado com sucesso!'); bootstrap.Modal.getInstance(document.getElementById('uploadModal')).hide();">Enviar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer-ilab mt-5">
     <div class="container py-4 text-center">
-      <a href="#" class="footer-link">Quem somos</a>
+      <a class="footer-link" onclick="showPage('quemSomosPage')">Quem somos</a>
+      <p class="footer-copy mt-2">
+        © 2024 iLab — Sistema de Processamento e Análises.
+      </p>
+    </div>
+  </footer>
+</div>
+
+<!-- ========== PÁGINA QUEM SOMOS ========== -->
+<div id="quemSomosPage" class="page quem-somos-page">
+  <nav class="navbar shadow-sm mb-4">
+    <div class="container-fluid d-flex justify-content-between align-items-center">
+      <div class="d-flex align-items-center gap-3">
+        <div class="nav-logo">📊</div>
+        <div class="text-white fw-bold navbar-brand">SPA - Sistema de Perfil Discente</div>
+      </div>
+      <div>
+        <a class="btn btn-outline-light btn-sm" onclick="showPage('indexPage')">⬅ Voltar</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container mt-5">
+    <h2 class="mb-3">Quem somos</h2>
+
+    <p style="font-size: 17px; line-height: 1.6;">
+      O <strong>iLab</strong> é um ambiente de inovação e desenvolvimento criado para
+      oferecer soluções modernas, inteligentes e eficientes para órgãos públicos.
+      Nosso objetivo é facilitar processos, melhorar fluxos de trabalho e entregar
+      tecnologia de qualidade, com foco em simplicidade, segurança e desempenho.
+    </p>
+
+    <p style="font-size: 17px; line-height: 1.6;">
+      Esta plataforma foi construída para apoiar a FMPSC, oferecendo agilidade
+      na gestão de análises, automações e ferramentas internas que ajudam no dia a dia
+      da operação.
+    </p>
+  </div>
+
+  <footer class="footer-ilab mt-5">
+    <div class="container py-4 text-center">
       <p class="footer-copy mt-2">
         © 2024 iLab — Sistema de Processamento e Análises.
       </p>
@@ -496,7 +696,42 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-  // Toggle password visibility
+  // ========== NAVEGAÇÃO ENTRE PÁGINAS ==========
+  function showPage(pageId) {
+    // Esconde todas as páginas
+    document.querySelectorAll('.page').forEach(page => {
+      page.classList.remove('active');
+    });
+    
+    // Mostra a página selecionada
+    const targetPage = document.getElementById(pageId);
+    if (targetPage) {
+      targetPage.classList.add('active');
+      window.scrollTo(0, 0);
+    }
+  }
+
+  // ========== LOGIN ==========
+  document.getElementById('loginForm')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    showPage('indexPage');
+  });
+
+  // ========== CADASTRO ==========
+  document.getElementById('formCadastro')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    alert('Cadastro realizado com sucesso! Redirecionando para login...');
+    showPage('loginPage');
+  });
+
+  // ========== RECUPERAR SENHA ==========
+  document.getElementById('recuperarForm')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    alert('Link de recuperação enviado para seu e-mail!');
+    showPage('loginPage');
+  });
+
+  // ========== TOGGLE PASSWORD ==========
   document.getElementById('togglePwd')?.addEventListener('click', function(){
     const pwd = document.getElementById('password');
     if(pwd.type === 'password'){ 
@@ -508,26 +743,119 @@
     }
   });
 
-  // Login form submission
-  document.getElementById('loginForm')?.addEventListener('submit', function(e) {
-    e.preventDefault();
-    // Simula login - mostra a página index
-    document.getElementById('loginPage').style.display = 'none';
-    document.getElementById('indexPage').style.display = 'block';
-  });
+  // ========== MÁSCARA CPF ==========
+  const cpfInput = document.getElementById('cpf');
+  if (cpfInput) {
+    cpfInput.addEventListener('input', () => {
+      let v = cpfInput.value.replace(/\D/g, '');
+      v = v.replace(/(\d{3})(\d)/, '$1.$2');
+      v = v.replace(/(\d{3})(\d)/, '$1.$2');
+      v = v.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+      cpfInput.value = v;
+    });
+  }
 
-  // Logout button
-  document.getElementById('btnLogout')?.addEventListener('click', function(e) {
-    e.preventDefault();
-    // Volta para a página de login
-    document.getElementById('indexPage').style.display = 'none';
-    document.getElementById('loginPage').style.display = 'flex';
-  });
+  // ========== ATUALIZAR COLUNAS ==========
+  function updateColumns() {
+    const arquivoSelect = document.getElementById('arquivoSelect');
+    const colunaSelect = document.getElementById('colunaSelect');
+    
+    if (arquivoSelect.value) {
+      colunaSelect.innerHTML = `
+        <option value="coluna1">Coluna 1 - Nome</option>
+        <option value="coluna2">Coluna 2 - Idade</option>
+        <option value="coluna3">Coluna 3 - Cidade</option>
+        <option value="coluna4">Coluna 4 - Status</option>
+      `;
+      
+      // Atualiza área de filtros
+      document.getElementById('filtersArea').innerHTML = `
+        <strong>Filtros disponíveis:</strong><br>
+        <div class="mt-2">
+          <label class="form-check-label small">
+            <input type="checkbox" class="form-check-input me-1"> Filtro 1
+          </label><br>
+          <label class="form-check-label small">
+            <input type="checkbox" class="form-check-input me-1"> Filtro 2
+          </label>
+        </div>
+      `;
+    } else {
+      colunaSelect.innerHTML = '<option value="">Selecione um arquivo primeiro</option>';
+      document.getElementById('filtersArea').innerHTML = '<strong>Filtros:</strong> Serão exibidos aqui após selecionar um arquivo';
+    }
+  }
 
-  // Botão cadastro (por enquanto só mostra mensagem)
-  document.getElementById('btnCadastro')?.addEventListener('click', function(e) {
-    e.preventDefault();
-    alert('Página de cadastro - Em desenvolvimento no protótipo');
+  // ========== GERAR GRÁFICO ==========
+  function gerarGrafico() {
+    const arquivo = document.getElementById('arquivoSelect').value;
+    const coluna = document.getElementById('colunaSelect').value;
+    const tipo = document.getElementById('tipoSelect').value;
+    
+    if (!arquivo || !coluna) {
+      alert('Por favor, selecione um arquivo e uma coluna!');
+      return;
+    }
+    
+    const container = document.getElementById('graficoContainer');
+    container.innerHTML = `
+      <div class="card">
+        <div class="card-header">Gráfico de ${tipo} - ${coluna}</div>
+        <div class="card-body">
+          <div class="mock-chart" style="min-height: 300px;">
+            📊 Gráfico de ${tipo} gerado com sucesso!<br>
+            <small style="color: var(--muted);">Arquivo: ${arquivo}<br>Coluna: ${coluna}</small>
+          </div>
+          <div class="mt-3 text-end">
+            <button class="btn btn-success btn-sm" onclick="alert('Gráfico salvo!')">💾 Salvar</button>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    document.getElementById('btnSalvarTodos').classList.remove('d-none');
+  }
+
+  // ========== GERAR COMPARAÇÃO ==========
+  function gerarComparacao() {
+    const arquivo1 = document.getElementById('arquivoSelect').value;
+    const arquivo2 = document.getElementById('arquivoCompare').value;
+    const coluna = document.getElementById('colunaSelect').value;
+    
+    if (!arquivo1 || !arquivo2 || !coluna) {
+      alert('Por favor, selecione ambos os arquivos e uma coluna!');
+      return;
+    }
+    
+    const container = document.getElementById('graficoContainer');
+    container.innerHTML = `
+      <div class="card mb-3">
+        <div class="card-header">Base - ${arquivo1}</div>
+        <div class="card-body">
+          <div class="mock-chart" style="min-height: 250px;">📊 Gráfico Base</div>
+        </div>
+      </div>
+      <div class="card mb-3">
+        <div class="card-header">Comparador - ${arquivo2}</div>
+        <div class="card-body">
+          <div class="mock-chart" style="min-height: 250px;">📊 Gráfico Comparador</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">Variação %</div>
+        <div class="card-body">
+          <div class="mock-chart" style="min-height: 250px;">📊 Gráfico de Variação</div>
+        </div>
+      </div>
+    `;
+    
+    document.getElementById('btnSalvarTodos').classList.remove('d-none');
+  }
+
+  // Inicialização
+  document.addEventListener('DOMContentLoaded', function() {
+    // Garante que apenas a página de login está visível no início
+    showPage('loginPage');
   });
 </script>
 

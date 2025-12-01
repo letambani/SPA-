@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+
+    <!-- Botão Voltar -->
+    <div class="mb-4">
+        {% if is_logged %}
+            <a href="{{ url_for('analises') }}"
+               class="btn btn-primary"
+               style="border-radius: 20px; padding:6px 20px;">
+                ⬅ Voltar
+            </a>
+        {% else %}
+            <a href="{{ url_for('login') }}"
+               class="btn btn-primary"
+               style="border-radius: 20px; padding:6px 20px;">
+                ⬅ Voltar
+            </a>
+        {% endif %}
+    </div>
+
+    <h2 class="mb-3">Quem somos</h2>
+
+    <p style="font-size: 17px; line-height: 1.6;">
+        O <strong>iLab</strong> é um ambiente de inovação e desenvolvimento criado para
+        oferecer soluções modernas, inteligentes e eficientes para órgãos públicos.
+        Nosso objetivo é facilitar processos, melhorar fluxos de trabalho e entregar
+        tecnologia de qualidade, com foco em simplicidade, segurança e desempenho.
+    </p>
+
+    <p style="font-size: 17px; line-height: 1.6;">
+        Esta plataforma foi construída para apoiar o Procon-SC, oferecendo agilidade
+        na gestão de análises, automações e ferramentas internas que ajudam no dia a dia
+        da operação.
+    </p>
+
+</div>
+{% endblock %}

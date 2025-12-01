@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Análises • SPA FMPSC</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- App CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<nav class="navbar shadow-sm mb-4" style="background: linear-gradient(90deg,#0B3353 0%, #09283f 100%);">
+  <div class="container-fluid d-flex justify-content-between align-items-center">
+    <div class="d-flex align-items-center gap-3">
+      <img src="{{ url_for('static', filename='logo-sem-fundo.png') }}" alt="SPA" class="nav-logo">
+      <div class="text-white fw-bold navbar-brand">Módulo de Análises</div>
+      
+    </div>
+
+    <div class="d-flex align-items-center gap-2">
+        <a id="btnTutorial" class="btn btn-outline-primary ms-2 text-white">❓ Suporte</a>
+      <div class="text-white me-3 small">
+
+        Bem-vindo, <strong>{{ current_user.nome }}</strong><br>
+        <span class="muted-email">{{ current_user.email }}</span>
+      </div>
+
+      <!-- Upload button: só aparece para o usuário autorizado -->
+      {% if current_user.email == "marcelo.souza@aluno.fmpsc.edu.br" %}
+        <button class="btn btn-success btn-sm ms-2" data-bs-toggle="modal" data-bs-target="#uploadModal" id="btnUploadVisible">📤 Enviar CSV</button>
+      {% endif %}
+
+      <button class="btn btn-outline-light btn-sm ms-2" id="refreshFilesBtn" title="Recarregar lista de arquivos">↻</button>
+
+      <a href="{{ url_for('logout') }}" class="btn btn-link btn-sm text-white ms-2">Sair</a>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="row g-3">
+    <!-- LEFT PANEL -->
+    <aside class="col-12 col-md-4">
+      <div class="card mb-3">
+        <div class="card-header">Arquivos CSV</div>
+        <div class="card-body">
+          <label class="form-label small">Arquivo base (para análise)</label>
+          <select id="arquivoSelect" class="form-select mb-2">
+            <option value="">Selecione um CSV</option>
+            {% for f in files %}
+              <option value="{{ f }}">{{ f }}</option>
+            {% endfor %}
+          </select>
+
+          <label class="form-label small">Comparar com (opcional)</label>
+          <select id="arquivoCompare" class="form-select mb-2">
+            <option value="">(nenhum)</option>
+            {% for f in files %}
+              <option value="{{ f }}">{{ f }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <div class="card mb-3">
+        <div class="card-header">Configuração</div>
+        <div class="card-body">
+          <label class="form-label">Coluna principal (mesma nos 2 arquivos)</label>
+          <select id="colunaSelect" class="form-select mb-2">
+            <option value="">Selecione um arquivo primeiro</option>
+          </select>
+
+          <label class="form-label">Agrupar por (opcional)</label>
+          <select id="colunaGroupBy" class="form-select mb-2">
+            <option value="">Nenhum agrupamento</option>
+          </select>
+
+          <label class="form-label">Tipo de gráfico</label>
+          <select id="tipoSelect" class="form-select mb-3">
+            <option value="bar">Barras</option>
+            <option value="pie">Pizza</option>
+            <option value="line">Linha</option>
+            <option value="histogram">Histograma</option>
+          </select>
+
+          <div id="filtersArea" class="mb-3 small text-muted">
+            <!-- filtros dinâmicos -->
+          </div>
+
+          <button class="btn btn-primary w-100" id="btnGerar">Gerar Gráfico</button>
+        </div>
+      </div>
+
+      <div class="card mb-3">
+        <div class="card-header">Comparar</div>
+        <div class="card-body">
+          <p class="small text-muted mb-2">Escolha um arquivo base (acima) e um arquivo para comparar. A comparação exige que a <strong>mesma coluna</strong> exista nos dois arquivos.</p>
+          <div class="d-grid gap-2">
+            <button class="btn btn-outline-primary" id="btnGerarComparar">Gerar e Comparar</button>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- RIGHT PANEL -->
+    <main class="col-12 col-md-8">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <span>Resultado</span>
+          <div>
+            <button id="btnSalvarTodos" class="btn btn-success btn-sm me-2 d-none">💾 Salvar todos</button>
+          </div>
+        </div>
+        <div class="card-body">
+          <div id="graficoContainer" class="d-flex flex-column gap-4">
+            <p class="text-center text-secondary">Nenhum gráfico gerado ainda.</p>
+          </div>
+        </div>
+      </div>
+    </main>
+
+  </div>
+</div>
+
+<!-- UPLOAD MODAL -->
+<div class="modal fade" id="uploadModal" tabindex="-1">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Enviar CSV</h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="file" id="csvFile" accept=".csv" class="form-control">
+        <div class="form-text small mt-2">Envie apenas arquivos .csv (mesmo nome pode sobrescrever).</div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button class="btn btn-success" id="uploadBtnModal">Enviar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="footer-ilab mt-5">
+    <div class="container py-4 text-center">
+
+        <a href="{{ url_for('quem_somos') }}" class="footer-link">
+            Quem somos
+        </a>
+
+        <p class="footer-copy mt-2">
+            © {{ current_year }} iLab — Sistema de Processamento e Análises.  
+        </p>
+    </div>
+</footer>
+
+
+
+
+
+<!-- SCRIPTS -->
+<!-- Bootstrap -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+
+<!-- Scripts da aplicação -->
+<script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+
+<!-- Shepherd.js (CORRETO) -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/shepherd.js/dist/css/shepherd.css">
+<script src="https://cdn.jsdelivr.net/npm/shepherd.js/dist/js/shepherd.min.js"></script>
+
+<!-- Tutorial -->
+<script src="{{ url_for('static', filename='js/tutorial.js') }}"></script>
+
+
+
+</body>
+</html>

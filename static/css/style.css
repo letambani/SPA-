@@ -1,0 +1,124 @@
+:root{
+  --azul: #0B3353;
+  --laranja: #E78E74;
+  --branco: #FFFFFF;
+  --muted: rgba(11,51,83,0.65);
+  --card-radius: 12px;
+}
+
+/* Page */
+body {
+  background: linear-gradient(180deg,var(--branco) 0%, #fbfbfb 100%);
+  color: var(--azul);
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  padding-bottom: 40px;
+  margin: 0;
+}
+
+/* Navbar */
+.nav-logo {
+  width: 56px;
+  height: auto;
+  object-fit: contain;
+  padding: 6px;
+  background: #fff;
+  border-radius: 8px;
+
+  /* Destaca fortemente sem "estragar" o visual */
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+}
+.navbar-brand { color: var(--branco); font-weight:700; }
+
+/* Cards */
+.card {
+  border-radius: var(--card-radius);
+  box-shadow: 0 8px 26px rgba(11,51,83,0.06);
+  border: 1px solid rgba(11,51,83,0.06);
+}
+.card-header {
+  background: linear-gradient(90deg, var(--azul), #09283f);
+  color: #fff;
+  font-weight: 700;
+  padding: 10px 16px;
+  border-top-left-radius: var(--card-radius);
+  border-top-right-radius: var(--card-radius);
+}
+
+/* Form labels */
+.form-label { font-weight: 600; color: var(--azul); }
+
+/* Filters area */
+#filtersArea {
+  max-height: 220px;
+  overflow: auto;
+  border-radius: 8px;
+  background: var(--branco);
+  padding: 10px;
+  border: 1px dashed rgba(11,51,83,0.06);
+}
+
+/* Buttons */
+.btn-primary {
+  background: var(--azul);
+  border: 0;
+  color: var(--branco);
+  font-weight: 700;
+}
+.btn-primary:hover { opacity: .95; }
+
+.btn-outline-primary {
+  color: var(--azul);
+  border-color: rgba(11,51,83,0.12);
+  background: transparent;
+  font-weight:700;
+}
+.btn-outline-primary:hover {
+  background: var(--laranja);
+  color: var(--branco);
+  border-color: var(--laranja);
+}
+
+/* Grafico container cards */
+#graficoContainer > .card { border: 1px solid rgba(11,51,83,0.06); }
+
+/* Small */
+.small-note { font-size: 13px; color: var(--muted); }
+
+.footer-ilab {
+    background: #0B3353;
+    color: white;
+    opacity: 0.75;
+    transition: opacity .3s ease;
+}
+
+.footer-ilab:hover {
+    opacity: 0.92;
+}
+
+.footer-ilab .footer-link {
+    color: white;
+    font-size: 15px;
+    opacity: 0.85;
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: .3s ease;
+}
+
+.footer-ilab .footer-link:hover {
+    opacity: 1;
+    border-bottom: 1px solid white;
+}
+
+.footer-ilab .footer-copy {
+    font-size: 13px;
+    opacity: 0.65;
+    margin: 0;
+}
+
+/* Responsive tweaks */
+@media (max-width: 767px) {
+  .nav-logo { display:none; }
+  .card { margin-bottom: 12px; }
+  .navbar-brand { font-size: 1rem; }
+}

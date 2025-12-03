@@ -1,5 +1,50 @@
 # Diagrama Simplificado do Sistema SPA
 
+## 5.6 Diagrama Simplificado
+
+```mermaid
+graph LR
+    subgraph Frontend["[Frontend]"]
+        HTML["[HTML, CSS]"]
+        Graficos["Gráficos"]
+        Interatividade["Interatividade"]
+    end
+    
+    subgraph API["[API Flask]"]
+        Logica["[Lógica de Negócio]"]
+        Processamento["(Processamento de dados)"]
+        Filtros["(Filtros, etc.)"]
+    end
+    
+    subgraph BD["[Banco de Dados]"]
+        MySQL["[MySQL]"]
+    end
+    
+    Frontend <--> API
+    API <--> BD
+    
+    Frontend --> HTML
+    Frontend --> Graficos
+    Frontend --> Interatividade
+    
+    API --> Logica
+    API --> Processamento
+    API --> Filtros
+    
+    BD --> MySQL
+    
+    style Frontend fill:#E78E74,color:#fff
+    style API fill:#0B3353,color:#fff
+    style BD fill:#28a745,color:#fff
+    style HTML fill:#E78E74,color:#fff
+    style Graficos fill:#E78E74,color:#fff
+    style Interatividade fill:#E78E74,color:#fff
+    style Logica fill:#0B3353,color:#fff
+    style Processamento fill:#0B3353,color:#fff
+    style Filtros fill:#0B3353,color:#fff
+    style MySQL fill:#28a745,color:#fff
+```
+
 ## Diagrama de Arquitetura em Camadas
 
 ```mermaid

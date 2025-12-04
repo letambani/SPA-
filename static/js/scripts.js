@@ -200,3 +200,127 @@ qs('btnSalvarTodos')?.addEventListener('click', async () => {
     }
   }
 });
+
+// ========== MAPA GEOGRÁFICO ==========
+let mapaLeaflet = null;
+
+function mostrarMapaGeografico() {
+  const filename = qs('arquivoSelect').value;
+  if (!filename) {
+    showError('Selecione um arquivo CSV primeiro');
+    return;
+  }
+
+  // Mostra o card do mapa
+  const mapaCard = qs('mapaCard');
+  if (mapaCard) {
+    mapaCard.style.display = 'block';
+    mapaCard.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  // Limpa mapa anterior se existir
+  const mapaDiv = qs('mapaGeografico');
+  if (mapaDiv) {
+    mapaDiv.innerHTML = '';
+  }
+
+  // Mostra loading
+  if (mapaDiv) {
+    mapaDiv.innerHTML = '<div class="text-center p-4"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Carregando...</span></div><p class="mt-2">Carregando mapa...</p></div>';
+  }
+
+  // Busca dados geográficos
+  fetch('/api/mapa_geografico', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ filename })
+  })
+  .then(r => r.json())
+  .then(js => {
+    if (js.error) {
+      showError(js.error);
+      if (mapaDiv) mapaDiv.innerHTML = '<p class="text-center text-danger">Erro ao carregar dados geográficos</p>';
+      return;
+    }
+
+    // Atualiza estatísticas
+    if (js.estatisticas) {
+      const stats = js.estatisticas;
+      if (qs('statTotalAlunos')) qs('statTotalAlunos').textContent = stats.total_alunos || 0;
+      if (qs('statTotalCidades')) qs('statTotalCidades').textContent = stats.total_cidades || 0;
+      if (qs('statMaiorCidade')) qs('statMaiorCidade').textContent = stats.maior_concentracao || '-';
+      if (qs('statAlunosMaior')) qs('statAlunosMaior').textContent = stats.alunos_maior_cidade || 0;
+    }
+
+    // Cria mapa Leaflet
+    if (mapaDiv && typeof L !== 'undefined') {
+      // Centro em Palhoça/SC (região da FMPSC)
+      mapaLeaflet = L.map('mapaGeografico').setView([-27.6453, -48.6697], 10);
+
+      // Adiciona tile layer
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: 'Leaflet | © OpenStreetMap contributors',
+        maxZoom: 19
+      }).addTo(mapaLeaflet);
+
+      // Encontra valores máximo e mínimo para normalizar tamanhos
+      const quantidades = js.dados.map(d => d.quantidade || 1);
+      const maxQtd = Math.max(...quantidades);
+      const minQtd = Math.min(...quantidades);
+
+      // Adiciona marcadores para cada cidade
+      js.dados.forEach(cidade => {
+        const quantidade = cidade.quantidade || 1;
+        const nome = cidade.nome || 'Cidade desconhecida';
+        
+        // Tamanho do marcador proporcional à quantidade (entre 8 e 40 pixels)
+        const tamanho = Math.max(8, Math.min(40, 8 + (quantidade / maxQtd) * 32));
+        
+        // Cor baseada na quantidade (vermelho para mais, azul para menos)
+        const intensidade = (quantidade - minQtd) / (maxQtd - minQtd || 1);
+        const red = Math.round(231 - (intensidade * 50)); // 231 (laranja) a 181
+        const green = Math.round(142 - (intensidade * 100)); // 142 a 42
+        const blue = Math.round(116 - (intensidade * 50)); // 116 a 66
+        const cor = `rgb(${red}, ${green}, ${blue})`;
+
+        // Cria marcador circular
+        const marker = L.circleMarker([cidade.lat, cidade.lng], {
+          radius: tamanho,
+          fillColor: cor,
+          color: '#0B3353',
+          weight: 2,
+          opacity: 1,
+          fillOpacity: 0.7
+        }).addTo(mapaLeaflet);
+
+        // Tooltip com informações
+        marker.bindPopup(`
+          <strong>${nome}</strong><br>
+          <strong>${quantidade}</strong> aluno(s)
+        `);
+
+        // Adiciona label no hover
+        marker.on('mouseover', function(e) {
+          this.openPopup();
+        });
+      });
+
+      // Ajusta zoom para mostrar todos os marcadores
+      if (js.dados.length > 0) {
+        const bounds = js.dados.map(d => [d.lat, d.lng]);
+        mapaLeaflet.fitBounds(bounds, { padding: [50, 50] });
+      }
+    } else {
+      if (mapaDiv) {
+        mapaDiv.innerHTML = '<p class="text-center text-danger">Biblioteca Leaflet não carregada. Recarregue a página.</p>';
+      }
+    }
+  })
+  .catch(err => {
+    console.error('Erro ao carregar mapa:', err);
+    showError('Erro ao carregar mapa geográfico');
+    if (mapaDiv) {
+      mapaDiv.innerHTML = '<p class="text-center text-danger">Erro ao carregar mapa</p>';
+    }
+  });
+}

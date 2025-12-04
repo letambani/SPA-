@@ -571,6 +571,109 @@ def download_chart(filename):
 
     return send_file(path, as_attachment=True)
 
+# ---------------- API: MAPA GEOGRÁFICO ----------------
+@app.route('/api/mapa_geografico', methods=['POST'])
+@login_required
+def api_mapa_geografico():
+    """Processa CSV e retorna dados geográficos por cidade"""
+    data = request.get_json()
+    filename = data.get("filename")
+    
+    if not filename:
+        return jsonify(error="Nenhum arquivo selecionado"), 400
+    
+    try:
+        df = load_csv(filename)
+    except Exception as e:
+        return jsonify(error=f"Erro ao abrir arquivo: {e}"), 400
+    
+    # Mapeia nomes de colunas possíveis para cidade
+    coluna_cidade = None
+    possiveis_colunas = [
+        'Qual seu município de residência?',
+        'município de residência',
+        'cidade',
+        'Cidade',
+        'Município',
+        'municipio'
+    ]
+    
+    for col in possiveis_colunas:
+        if col in df.columns:
+            coluna_cidade = col
+            break
+    
+    if not coluna_cidade:
+        return jsonify(error="Coluna de cidade não encontrada no CSV"), 400
+    
+    # Conta alunos por cidade
+    cidades_count = df[coluna_cidade].value_counts().to_dict()
+    
+    # Coordenadas aproximadas das principais cidades de SC
+    coordenadas_cidades = {
+        'Palhoça': {'lat': -27.6453, 'lng': -48.6697, 'nome': 'Palhoça'},
+        'Florianópolis': {'lat': -27.5954, 'lng': -48.5480, 'nome': 'Florianópolis'},
+        'São José': {'lat': -27.6146, 'lng': -48.6366, 'nome': 'São José'},
+        'Biguaçu': {'lat': -27.4942, 'lng': -48.6556, 'nome': 'Biguaçu'},
+        'Antônio Carlos': {'lat': -27.5194, 'lng': -48.7669, 'nome': 'Antônio Carlos'},
+        'Santo Amaro da Imperatriz': {'lat': -27.6881, 'lng': -48.7786, 'nome': 'Santo Amaro da Imperatriz'},
+        'Paulo Lopes': {'lat': -27.9617, 'lng': -48.6847, 'nome': 'Paulo Lopes'},
+        'Garopaba': {'lat': -28.0239, 'lng': -48.6128, 'nome': 'Garopaba'},
+        'Imbituba': {'lat': -28.2403, 'lng': -48.6703, 'nome': 'Imbituba'},
+        'Tubarão': {'lat': -28.4800, 'lng': -49.0069, 'nome': 'Tubarão'},
+        'Criciúma': {'lat': -28.6775, 'lng': -49.3697, 'nome': 'Criciúma'},
+        'Blumenau': {'lat': -26.9194, 'lng': -49.0661, 'nome': 'Blumenau'},
+        'Joinville': {'lat': -26.3044, 'lng': -48.8456, 'nome': 'Joinville'},
+        'Chapecó': {'lat': -27.0969, 'lng': -52.6178, 'nome': 'Chapecó'},
+    }
+    
+    # Processa dados
+    dados_mapa = []
+    total_alunos = 0
+    cidades_encontradas = []
+    
+    for cidade, quantidade in cidades_count.items():
+        cidade_limpa = str(cidade).strip()
+        total_alunos += quantidade
+        
+        # Normaliza nome da cidade (remove acentos, maiúsculas)
+        cidade_normalizada = cidade_limpa.lower()
+        
+        # Tenta encontrar coordenadas
+        coords = None
+        for nome_chave, dados in coordenadas_cidades.items():
+            if nome_chave.lower() in cidade_normalizada or cidade_normalizada in nome_chave.lower():
+                coords = dados
+                coords['quantidade'] = int(quantidade)
+                break
+        
+        # Se não encontrou, usa coordenadas padrão de Palhoça (centro da região)
+        if not coords:
+            coords = {
+                'lat': -27.6453,
+                'lng': -48.6697,
+                'nome': cidade_limpa,
+                'quantidade': int(quantidade)
+            }
+        else:
+            coords['nome'] = cidade_limpa
+        
+        dados_mapa.append(coords)
+        cidades_encontradas.append(cidade_limpa)
+    
+    # Encontra cidade com maior concentração
+    cidade_maior = max(cidades_count.items(), key=lambda x: x[1]) if cidades_count else None
+    
+    return jsonify({
+        'dados': dados_mapa,
+        'estatisticas': {
+            'total_alunos': total_alunos,
+            'total_cidades': len(set(cidades_encontradas)),
+            'maior_concentracao': cidade_maior[0] if cidade_maior else 'N/A',
+            'alunos_maior_cidade': int(cidade_maior[1]) if cidade_maior else 0
+        }
+    })
+
 # ---------------- Rota para quem somos ----------------
 @app.route('/quem_somos')
 def quem_somos():

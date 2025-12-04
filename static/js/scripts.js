@@ -207,6 +207,209 @@ qs('btnSalvarTodos')?.addEventListener('click', async () => {
   }
 });
 
+// ========== VISUALIZAÇÕES COMPLETAS ==========
+qs('btnVisualizacoesCompletas')?.addEventListener('click', () => {
+  const filename = qs('arquivoSelect').value;
+  if (!filename) {
+    showError('Selecione um arquivo CSV primeiro');
+    return;
+  }
+
+  const container = qs('graficoContainer');
+  container.innerHTML = '<div class="text-center p-4"><div class="spinner-border text-primary" role="status"></div><p class="mt-3">Gerando visualizações completas...</p></div>';
+
+  fetch('/api/visualizacoes_completas', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ filename })
+  })
+  .then(r => r.json())
+  .then(js => {
+    if (js.error) {
+      showError(js.error);
+      container.innerHTML = '<p class="text-center text-danger">Erro ao gerar visualizações</p>';
+      return;
+    }
+
+    container.innerHTML = '';
+    
+    if (!js.visualizacoes || js.visualizacoes.length === 0) {
+      container.innerHTML = '<p class="text-center text-secondary">Nenhuma visualização gerada. Verifique se o arquivo CSV contém dados válidos.</p>';
+      return;
+    }
+
+      // Renderiza cada visualização
+      js.visualizacoes.forEach((viz, idx) => {
+        // Se for mapa, renderiza de forma especial
+        if (viz.tipo === 'mapa') {
+          renderMapaVisualizacao(viz, idx, container);
+          return;
+        }
+
+        const card = document.createElement('div');
+        card.className = 'card mb-3';
+        
+        const header = document.createElement('div');
+        header.className = 'card-header d-flex justify-content-between align-items-center';
+        header.style.background = '#f8f9fa';
+        header.innerHTML = `
+          <div>
+            <strong>${viz.titulo}</strong>
+            <span class="badge bg-secondary ms-2">${viz.tipo}</span>
+          </div>
+          <div class="btn-group">
+            <button class="btn btn-sm btn-outline-secondary" onclick="downloadPlotlyPNG('viz_${idx}')">📥 PNG</button>
+          </div>
+        `;
+        card.appendChild(header);
+
+        const body = document.createElement('div');
+        body.className = 'card-body';
+        const plot = document.createElement('div');
+        plot.id = `viz_${idx}`;
+        plot.style.height = '450px';
+        body.appendChild(plot);
+        card.appendChild(body);
+        container.appendChild(card);
+
+        // Renderiza o gráfico
+        try {
+          const fig = viz.fig || {};
+          const data = fig.data || [];
+          const layout = fig.layout || {};
+          Plotly.react(plot.id, data, layout, {responsive: true});
+        } catch (e) {
+          plot.innerHTML = `<pre class="text-danger">Erro ao renderizar: ${String(e)}</pre>`;
+        }
+      });
+
+    qs('btnSalvarTodos')?.classList.remove('d-none');
+    qs('btnMostrarMapa')?.style.setProperty('display', 'inline-block');
+  })
+  .catch(err => {
+    console.error('Erro:', err);
+    showError('Erro ao gerar visualizações completas');
+    container.innerHTML = '<p class="text-center text-danger">Erro ao processar requisição</p>';
+  });
+});
+
+// Função auxiliar para renderizar mapa nas visualizações completas
+function renderMapaVisualizacao(viz, idx, container) {
+  if (!viz.dados_mapa || !Array.isArray(viz.dados_mapa)) return;
+
+  const card = document.createElement('div');
+  card.className = 'card mb-3';
+  
+  const header = document.createElement('div');
+  header.className = 'card-header d-flex justify-content-between align-items-center';
+  header.style.background = '#f8f9fa';
+  header.innerHTML = `
+    <div>
+      <strong>${viz.titulo}</strong>
+      <span class="badge bg-info ms-2">Mapa Interativo</span>
+    </div>
+  `;
+  card.appendChild(header);
+
+  const body = document.createElement('div');
+  body.className = 'card-body';
+  
+  const mapaDiv = document.createElement('div');
+  mapaDiv.id = `mapa_viz_${idx}`;
+  mapaDiv.style.height = '500px';
+  mapaDiv.style.width = '100%';
+  mapaDiv.style.borderRadius = '8px';
+  mapaDiv.style.border = '1px solid #dee2e6';
+  body.appendChild(mapaDiv);
+
+  // Estatísticas
+  if (viz.estatisticas) {
+    const statsDiv = document.createElement('div');
+    statsDiv.className = 'row mt-4 g-3';
+    statsDiv.innerHTML = `
+      <div class="col-6 col-md-3">
+        <div class="card text-center">
+          <div class="card-body">
+            <h3 class="mb-0">${viz.estatisticas.total_alunos || 0}</h3>
+            <small class="text-muted">Total de Alunos</small>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card text-center">
+          <div class="card-body">
+            <h3 class="mb-0">${viz.estatisticas.total_cidades || 0}</h3>
+            <small class="text-muted">Cidades</small>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card text-center">
+          <div class="card-body">
+            <h5 class="mb-0" style="font-size: 1rem;">${viz.estatisticas.maior_concentracao || '-'}</h5>
+            <small class="text-muted">Maior Concentração</small>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card text-center">
+          <div class="card-body">
+            <h3 class="mb-0">${viz.estatisticas.alunos_maior_cidade || 0}</h3>
+            <small class="text-muted">Alunos na Maior Cidade</small>
+          </div>
+        </div>
+      </div>
+    `;
+    body.appendChild(statsDiv);
+  }
+
+  card.appendChild(body);
+  container.appendChild(card);
+
+  // Cria mapa Leaflet
+  if (typeof L !== 'undefined') {
+    const mapa = L.map(`mapa_viz_${idx}`).setView([-27.6453, -48.6697], 10);
+    
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: 'Leaflet | © OpenStreetMap contributors',
+      maxZoom: 19
+    }).addTo(mapa);
+
+    const quantidades = viz.dados_mapa.map(d => d.quantidade || 1);
+    const maxQtd = Math.max(...quantidades);
+    const minQtd = Math.min(...quantidades);
+
+    viz.dados_mapa.forEach(cidade => {
+      const quantidade = cidade.quantidade || 1;
+      const tamanho = Math.max(8, Math.min(40, 8 + (quantidade / maxQtd) * 32));
+      const intensidade = (quantidade - minQtd) / (maxQtd - minQtd || 1);
+      const red = Math.round(231 - (intensidade * 50));
+      const green = Math.round(142 - (intensidade * 100));
+      const blue = Math.round(116 - (intensidade * 50));
+      const cor = `rgb(${red}, ${green}, ${blue})`;
+
+      const marker = L.circleMarker([cidade.lat, cidade.lng], {
+        radius: tamanho,
+        fillColor: cor,
+        color: '#0B3353',
+        weight: 2,
+        opacity: 1,
+        fillOpacity: 0.7
+      }).addTo(mapa);
+
+      marker.bindPopup(`
+        <strong>${cidade.nome}</strong><br>
+        <strong>${quantidade}</strong> aluno(s)
+      `);
+    });
+
+    if (viz.dados_mapa.length > 0) {
+      const bounds = viz.dados_mapa.map(d => [d.lat, d.lng]);
+      mapa.fitBounds(bounds, { padding: [50, 50] });
+    }
+  }
+}
+
 // ========== MAPA GEOGRÁFICO ==========
 let mapaLeaflet = null;
 

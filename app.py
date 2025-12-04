@@ -674,6 +674,347 @@ def api_mapa_geografico():
         }
     })
 
+# ---------------- API: VISUALIZAÇÕES COMPLETAS ----------------
+@app.route('/api/visualizacoes_completas', methods=['POST'])
+@login_required
+def api_visualizacoes_completas():
+    """Gera múltiplos gráficos dinâmicos, mapas de calor e mapas geográficos"""
+    data = request.get_json()
+    filename = data.get("filename")
+    
+    if not filename:
+        return jsonify(error="Nenhum arquivo selecionado"), 400
+    
+    try:
+        df = load_csv(filename)
+    except Exception as e:
+        return jsonify(error=f"Erro ao abrir arquivo: {e}"), 400
+    
+    resultados = []
+    
+    # Função auxiliar para converter figura Plotly para JSON
+    def convert(fig_json):
+        return json.loads(json.dumps(fig_json, default=str))
+    
+    # 1. GRÁFICO DE BARRAS - Distribuição por Curso
+    try:
+        coluna_curso = None
+        for col in df.columns:
+            if 'curso' in col.lower() or 'Curso' in col:
+                coluna_curso = col
+                break
+        
+        if coluna_curso:
+            curso_counts = df[coluna_curso].value_counts()
+            fig_curso = px.bar(
+                x=curso_counts.index,
+                y=curso_counts.values,
+                title="Distribuição de Alunos por Curso",
+                labels={'x': 'Curso', 'y': 'Quantidade de Alunos'},
+                color=curso_counts.values,
+                color_continuous_scale='Blues'
+            )
+            fig_curso.update_layout(
+                xaxis_tickangle=-45,
+                height=400,
+                showlegend=False
+            )
+            resultados.append({
+                "tipo": "bar",
+                "titulo": "Distribuição por Curso",
+                "fig": convert(fig_curso.to_plotly_json())
+            })
+    except Exception as e:
+        pass
+    
+    # 2. GRÁFICO DE PIZZA - Distribuição por Gênero
+    try:
+        coluna_genero = None
+        for col in df.columns:
+            if 'gênero' in col.lower() or 'genero' in col.lower() or 'identifica' in col.lower():
+                coluna_genero = col
+                break
+        
+        if coluna_genero:
+            genero_counts = df[coluna_genero].value_counts()
+            fig_genero = px.pie(
+                values=genero_counts.values,
+                names=genero_counts.index,
+                title="Distribuição por Gênero",
+                color_discrete_sequence=px.colors.qualitative.Set3
+            )
+            fig_genero.update_layout(height=400)
+            resultados.append({
+                "tipo": "pie",
+                "titulo": "Distribuição por Gênero",
+                "fig": convert(fig_genero.to_plotly_json())
+            })
+    except Exception as e:
+        pass
+    
+    # 3. GRÁFICO DE BARRAS - Faixa Etária
+    try:
+        coluna_idade = None
+        for col in df.columns:
+            if 'faixa etária' in col.lower() or 'idade' in col.lower():
+                coluna_idade = col
+                break
+        
+        if coluna_idade:
+            idade_counts = df[coluna_idade].value_counts().sort_index()
+            fig_idade = px.bar(
+                x=idade_counts.index,
+                y=idade_counts.values,
+                title="Distribuição por Faixa Etária",
+                labels={'x': 'Faixa Etária', 'y': 'Quantidade'},
+                color=idade_counts.values,
+                color_continuous_scale='Oranges'
+            )
+            fig_idade.update_layout(height=400, showlegend=False)
+            resultados.append({
+                "tipo": "bar",
+                "titulo": "Distribuição por Faixa Etária",
+                "fig": convert(fig_idade.to_plotly_json())
+            })
+    except Exception as e:
+        pass
+    
+    # 4. HEATMAP - Curso vs Cidade
+    try:
+        if coluna_curso:
+            coluna_cidade = None
+            for col in df.columns:
+                if 'município' in col.lower() or 'cidade' in col.lower() or 'residência' in col.lower():
+                    coluna_cidade = col
+                    break
+            
+            if coluna_cidade:
+                pivot = pd.crosstab(df[coluna_curso], df[coluna_cidade], margins=False)
+                fig_heatmap = px.imshow(
+                    pivot.values,
+                    labels=dict(x="Cidade", y="Curso", color="Quantidade"),
+                    x=pivot.columns,
+                    y=pivot.index,
+                    title="Heatmap: Curso vs Cidade",
+                    color_continuous_scale='YlOrRd',
+                    aspect="auto"
+                )
+                fig_heatmap.update_layout(height=500)
+                resultados.append({
+                    "tipo": "heatmap",
+                    "titulo": "Heatmap: Curso vs Cidade",
+                    "fig": convert(fig_heatmap.to_plotly_json())
+                })
+    except Exception as e:
+        pass
+    
+    # 5. GRÁFICO DE BARRAS HORIZONTAIS - Cor/Raça
+    try:
+        coluna_cor = None
+        for col in df.columns:
+            if 'cor' in col.lower() or 'raça' in col.lower():
+                coluna_cor = col
+                break
+        
+        if coluna_cor:
+            cor_counts = df[coluna_cor].value_counts()
+            fig_cor = px.bar(
+                x=cor_counts.values,
+                y=cor_counts.index,
+                orientation='h',
+                title="Distribuição por Cor/Raça",
+                labels={'x': 'Quantidade', 'y': 'Cor/Raça'},
+                color=cor_counts.values,
+                color_continuous_scale='Viridis'
+            )
+            fig_cor.update_layout(height=400, showlegend=False)
+            resultados.append({
+                "tipo": "bar_h",
+                "titulo": "Distribuição por Cor/Raça",
+                "fig": convert(fig_cor.to_plotly_json())
+            })
+    except Exception as e:
+        pass
+    
+    # 6. GRÁFICO DE BARRAS - Meio de Divulgação
+    try:
+        coluna_divulgacao = None
+        for col in df.columns:
+            if 'divulgação' in col.lower() or 'conheceu' in col.lower():
+                coluna_divulgacao = col
+                break
+        
+        if coluna_divulgacao:
+            div_counts = df[coluna_divulgacao].value_counts()
+            fig_div = px.bar(
+                x=div_counts.index,
+                y=div_counts.values,
+                title="Como os Alunos Conheceram a FMP",
+                labels={'x': 'Meio de Divulgação', 'y': 'Quantidade'},
+                color=div_counts.values,
+                color_continuous_scale='Purples'
+            )
+            fig_div.update_layout(xaxis_tickangle=-45, height=400, showlegend=False)
+            resultados.append({
+                "tipo": "bar",
+                "titulo": "Meio de Divulgação",
+                "fig": convert(fig_div.to_plotly_json())
+            })
+    except Exception as e:
+        pass
+    
+    # 7. GRÁFICO DE BARRAS - Situação de Trabalho
+    try:
+        coluna_trabalho = None
+        for col in df.columns:
+            if 'trabalhando' in col.lower() or 'trabalha' in col.lower():
+                coluna_trabalho = col
+                break
+        
+        if coluna_trabalho:
+            trab_counts = df[coluna_trabalho].value_counts()
+            fig_trab = px.bar(
+                x=trab_counts.index,
+                y=trab_counts.values,
+                title="Situação de Trabalho",
+                labels={'x': 'Situação', 'y': 'Quantidade'},
+                color=trab_counts.values,
+                color_continuous_scale='Greens'
+            )
+            fig_trab.update_layout(height=400, showlegend=False)
+            resultados.append({
+                "tipo": "bar",
+                "titulo": "Situação de Trabalho",
+                "fig": convert(fig_trab.to_plotly_json())
+            })
+    except Exception as e:
+        pass
+    
+    # 8. GRÁFICO DE BARRAS - Renda
+    try:
+        coluna_renda = None
+        for col in df.columns:
+            if 'renda' in col.lower():
+                coluna_renda = col
+                break
+        
+        if coluna_renda:
+            renda_counts = df[coluna_renda].value_counts()
+            # Ordena por ordem lógica de renda
+            ordem_renda = [
+                'Menos de 1 salário mínimo',
+                'De 1 a 3 salários mínimos',
+                'De 4 a 6 salários mínimos',
+                'Mais de 6 salários mínimos'
+            ]
+            renda_ordenada = {}
+            for ordem in ordem_renda:
+                for key, value in renda_counts.items():
+                    if ordem in str(key):
+                        renda_ordenada[key] = value
+                        break
+            for key, value in renda_counts.items():
+                if key not in renda_ordenada:
+                    renda_ordenada[key] = value
+            
+            fig_renda = px.bar(
+                x=list(renda_ordenada.keys()),
+                y=list(renda_ordenada.values()),
+                title="Distribuição por Faixa de Renda",
+                labels={'x': 'Faixa de Renda', 'y': 'Quantidade'},
+                color=list(renda_ordenada.values()),
+                color_continuous_scale='Reds'
+            )
+            fig_renda.update_layout(xaxis_tickangle=-45, height=400, showlegend=False)
+            resultados.append({
+                "tipo": "bar",
+                "titulo": "Distribuição por Renda",
+                "fig": convert(fig_renda.to_plotly_json())
+            })
+    except Exception as e:
+        pass
+    
+    # 9. HEATMAP DE CORRELAÇÃO (se houver colunas numéricas)
+    try:
+        numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
+        if len(numeric_cols) > 1:
+            corr_matrix = df[numeric_cols].corr()
+            fig_corr = px.imshow(
+                corr_matrix.values,
+                labels=dict(x="Variável", y="Variável", color="Correlação"),
+                x=corr_matrix.columns,
+                y=corr_matrix.index,
+                title="Heatmap de Correlação entre Variáveis Numéricas",
+                color_continuous_scale='RdBu',
+                aspect="auto"
+            )
+            fig_corr.update_layout(height=500)
+            resultados.append({
+                "tipo": "heatmap",
+                "titulo": "Correlação entre Variáveis",
+                "fig": convert(fig_corr.to_plotly_json())
+            })
+    except Exception as e:
+        pass
+    
+    # 10. DADOS PARA MAPA GEOGRÁFICO MELHORADO (com clusters)
+    try:
+        coluna_cidade = None
+        for col in df.columns:
+            if 'município' in col.lower() or 'cidade' in col.lower() or 'residência' in col.lower():
+                coluna_cidade = col
+                break
+        
+        if coluna_cidade:
+            cidades_count = df[coluna_cidade].value_counts().to_dict()
+            
+            # Coordenadas das cidades
+            coordenadas_cidades = {
+                'Palhoça': {'lat': -27.6453, 'lng': -48.6697},
+                'Florianópolis': {'lat': -27.5954, 'lng': -48.5480},
+                'São José': {'lat': -27.6146, 'lng': -48.6366},
+                'Biguaçu': {'lat': -27.4942, 'lng': -48.6556},
+                'Antônio Carlos': {'lat': -27.5194, 'lng': -48.7669},
+                'Santo Amaro da Imperatriz': {'lat': -27.6881, 'lng': -48.7786},
+            }
+            
+            dados_mapa = []
+            for cidade, quantidade in cidades_count.items():
+                cidade_limpa = str(cidade).strip()
+                coords = None
+                for nome_chave, dados in coordenadas_cidades.items():
+                    if nome_chave.lower() in cidade_limpa.lower() or cidade_limpa.lower() in nome_chave.lower():
+                        coords = dados.copy()
+                        coords['nome'] = cidade_limpa
+                        coords['quantidade'] = int(quantidade)
+                        break
+                
+                if not coords:
+                    coords = {
+                        'lat': -27.6453,
+                        'lng': -48.6697,
+                        'nome': cidade_limpa,
+                        'quantidade': int(quantidade)
+                    }
+                
+                dados_mapa.append(coords)
+            
+            resultados.append({
+                "tipo": "mapa",
+                "titulo": "Dados Geográficos para Mapa",
+                "dados_mapa": dados_mapa,
+                "estatisticas": {
+                    'total_alunos': int(df[coluna_cidade].count()),
+                    'total_cidades': len(set(df[coluna_cidade].dropna().astype(str))),
+                    'maior_concentracao': max(cidades_count.items(), key=lambda x: x[1])[0] if cidades_count else 'N/A',
+                    'alunos_maior_cidade': int(max(cidades_count.values())) if cidades_count else 0
+                }
+            })
+    except Exception as e:
+        pass
+    
+    return jsonify({"visualizacoes": resultados})
+
 # ---------------- Rota para quem somos ----------------
 @app.route('/quem_somos')
 def quem_somos():

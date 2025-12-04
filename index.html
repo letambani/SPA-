@@ -846,10 +846,64 @@
 
       <!-- RIGHT PANEL -->
       <main class="col-12 col-md-8">
+        <!-- Mapa Geográfico -->
+        <div class="card mb-3" id="mapaCard" style="display: none;">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <span>Exemplo de Mapa de Calor Geográfico</span>
+            <button class="btn btn-sm btn-outline-light" onclick="document.getElementById('mapaCard').style.display='none'">✕</button>
+          </div>
+          <div class="card-body">
+            <h5 class="mb-3">Distribuição Geográfica dos Acadêmicos</h5>
+            <p class="small text-muted mb-3">Mapa interativo com marcadores (bolinhas) mostrando quantidade de alunos por cidade</p>
+            
+            <div id="mapaGeografico" style="height: 500px; width: 100%; border-radius: 8px; border: 1px solid #dee2e6;"></div>
+            
+            <div class="row mt-4 g-3">
+              <div class="col-6 col-md-3">
+                <div class="card text-center">
+                  <div class="card-body">
+                    <h3 id="statTotalAlunos" class="mb-0">318</h3>
+                    <small class="text-muted">Total de Alunos</small>
+                  </div>
+                </div>
+              </div>
+              <div class="col-6 col-md-3">
+                <div class="card text-center">
+                  <div class="card-body">
+                    <h3 id="statTotalCidades" class="mb-0">6</h3>
+                    <small class="text-muted">Cidades</small>
+                  </div>
+                </div>
+              </div>
+              <div class="col-6 col-md-3">
+                <div class="card text-center">
+                  <div class="card-body">
+                    <h5 id="statMaiorCidade" class="mb-0" style="font-size: 1rem;">Palhoça</h5>
+                    <small class="text-muted">Maior Concentração</small>
+                  </div>
+                </div>
+              </div>
+              <div class="col-6 col-md-3">
+                <div class="card text-center">
+                  <div class="card-body">
+                    <h3 id="statAlunosMaior" class="mb-0">280</h3>
+                    <small class="text-muted">Alunos em Palhoça</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <p class="small text-muted mt-3 mb-0">
+              Dados baseados no arquivo CSV real do projeto. As bolinhas são proporcionais à quantidade de alunos em cada cidade.
+            </p>
+          </div>
+        </div>
+
         <div class="card">
           <div class="card-header d-flex justify-content-between align-items-center">
             <span>Resultado</span>
             <div>
+              <button id="btnMostrarMapa" class="btn btn-info btn-sm me-2" onclick="mostrarMapaGeografico()">🗺️ Mapa Geográfico</button>
               <button id="btnSalvarTodos" class="btn btn-success btn-sm d-none" onclick="alert('Gráficos salvos!')">💾 Salvar todos</button>
             </div>
           </div>
@@ -935,6 +989,10 @@
 
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Leaflet para Mapa -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
   // ========== NAVEGAÇÃO ENTRE PÁGINAS ==========
@@ -1358,6 +1416,98 @@
     
     originalShowPage(pageId);
   };
+
+  // ========== MAPA GEOGRÁFICO ==========
+  let mapaLeaflet = null;
+
+  function mostrarMapaGeografico() {
+    // Mostra o card do mapa
+    const mapaCard = document.getElementById('mapaCard');
+    if (mapaCard) {
+      mapaCard.style.display = 'block';
+      mapaCard.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Limpa mapa anterior se existir
+    const mapaDiv = document.getElementById('mapaGeografico');
+    if (mapaDiv) {
+      mapaDiv.innerHTML = '';
+    }
+
+    // Dados simulados baseados no CSV real
+    const dadosCidades = [
+      { nome: 'Palhoça', lat: -27.6453, lng: -48.6697, quantidade: 280 },
+      { nome: 'Florianópolis', lat: -27.5954, lng: -48.5480, quantidade: 25 },
+      { nome: 'São José', lat: -27.6146, lng: -48.6366, quantidade: 8 },
+      { nome: 'Antônio Carlos', lat: -27.5194, lng: -48.7669, quantidade: 3 },
+      { nome: 'Biguaçu', lat: -27.4942, lng: -48.6556, quantidade: 1 },
+      { nome: 'Santo Amaro da Imperatriz', lat: -27.6881, lng: -48.7786, quantidade: 1 }
+    ];
+
+    // Cria mapa Leaflet
+    if (mapaDiv && typeof L !== 'undefined') {
+      // Centro em Palhoça/SC (região da FMPSC)
+      mapaLeaflet = L.map('mapaGeografico').setView([-27.6453, -48.6697], 10);
+
+      // Adiciona tile layer
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: 'Leaflet | © OpenStreetMap contributors',
+        maxZoom: 19
+      }).addTo(mapaLeaflet);
+
+      // Encontra valores máximo e mínimo para normalizar tamanhos
+      const quantidades = dadosCidades.map(d => d.quantidade || 1);
+      const maxQtd = Math.max(...quantidades);
+      const minQtd = Math.min(...quantidades);
+
+      // Adiciona marcadores para cada cidade
+      dadosCidades.forEach(cidade => {
+        const quantidade = cidade.quantidade || 1;
+        const nome = cidade.nome || 'Cidade desconhecida';
+        
+        // Tamanho do marcador proporcional à quantidade (entre 8 e 40 pixels)
+        const tamanho = Math.max(8, Math.min(40, 8 + (quantidade / maxQtd) * 32));
+        
+        // Cor baseada na quantidade (laranja para mais, azul para menos)
+        const intensidade = (quantidade - minQtd) / (maxQtd - minQtd || 1);
+        const red = Math.round(231 - (intensidade * 50)); // 231 (laranja) a 181
+        const green = Math.round(142 - (intensidade * 100)); // 142 a 42
+        const blue = Math.round(116 - (intensidade * 50)); // 116 a 66
+        const cor = `rgb(${red}, ${green}, ${blue})`;
+
+        // Cria marcador circular
+        const marker = L.circleMarker([cidade.lat, cidade.lng], {
+          radius: tamanho,
+          fillColor: cor,
+          color: '#0B3353',
+          weight: 2,
+          opacity: 1,
+          fillOpacity: 0.7
+        }).addTo(mapaLeaflet);
+
+        // Tooltip com informações
+        marker.bindPopup(`
+          <strong>${nome}</strong><br>
+          <strong>${quantidade}</strong> aluno(s)
+        `);
+
+        // Adiciona label no hover
+        marker.on('mouseover', function(e) {
+          this.openPopup();
+        });
+      });
+
+      // Ajusta zoom para mostrar todos os marcadores
+      if (dadosCidades.length > 0) {
+        const bounds = dadosCidades.map(d => [d.lat, d.lng]);
+        mapaLeaflet.fitBounds(bounds, { padding: [50, 50] });
+      }
+    } else {
+      if (mapaDiv) {
+        mapaDiv.innerHTML = '<p class="text-center text-danger">Biblioteca Leaflet não carregada. Recarregue a página.</p>';
+      }
+    }
+  }
 
   // Inicialização
   document.addEventListener('DOMContentLoaded', function() {

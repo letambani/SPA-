@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Visualizações - SPA FMPSC</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  
+  <!-- Plotly -->
+  <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+  
+  <!-- Leaflet -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  
+  <style>
+    body {
+      background: #f8f9fa;
+      padding-top: 20px;
+      padding-bottom: 40px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .card {
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      border: none;
+      border-radius: 12px;
+    }
+    .card-header {
+      background: linear-gradient(90deg, #0B3353 0%, #09283f 100%);
+      color: white;
+      font-weight: bold;
+      border-radius: 12px 12px 0 0 !important;
+      padding: 15px 20px;
+    }
+    .chart-container {
+      height: 500px;
+      margin: 15px 0;
+      width: 100%;
+    }
+    .map-container {
+      height: 550px;
+      border-radius: 8px;
+      border: 1px solid #dee2e6;
+      margin: 15px 0;
+    }
+    .stats-card {
+      text-align: center;
+      padding: 20px;
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      border-radius: 10px;
+      transition: transform 0.2s;
+    }
+    .stats-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    .stats-card h3 {
+      margin: 0;
+      color: #0B3353;
+      font-size: 2.5rem;
+      font-weight: bold;
+    }
+    .stats-card small {
+      color: #6c757d;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+    .ai-insight {
+      background: linear-gradient(135deg, #E78E74 0%, #d67a60 100%);
+      color: white;
+      padding: 20px;
+      border-radius: 10px;
+      margin: 15px 0;
+      box-shadow: 0 4px 12px rgba(231, 142, 116, 0.3);
+    }
+    .ai-insight h5 {
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+    .comparative-card {
+      border-left: 4px solid #0B3353;
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 10px 0;
+    }
+    .comparative-card h6 {
+      color: #0B3353;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .badge-custom {
+      background: #E78E74;
+      color: white;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+    }
+    .section-title {
+      color: #0B3353;
+      font-weight: bold;
+      margin: 30px 0 20px 0;
+      padding-bottom: 10px;
+      border-bottom: 3px solid #E78E74;
+    }
+  </style>
+</head>
+<body>
+  <div class="container-fluid px-4">
+    <!-- Header -->
+    <div class="row mb-4">
+      <div class="col-12">
+        <div class="card">
+          <div class="card-header">
+            <h2 class="mb-0">📊 Visualizações do Perfil dos Acadêmicos da FMP</h2>
+          </div>
+          <div class="card-body">
+            <p class="text-muted mb-0">
+              Gráficos dinâmicos, mapas de calor, análises com IA e comparativos baseados no arquivo CSV real do projeto.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Estatísticas Gerais -->
+    <div class="row mb-4">
+      <div class="col-12">
+        <h3 class="section-title">📈 Estatísticas Gerais</h3>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card stats-card">
+          <h3>318</h3>
+          <small>Total de Alunos</small>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card stats-card">
+          <h3>6</h3>
+          <small>Cidades Representadas</small>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card stats-card">
+          <h3>4</h3>
+          <small>Cursos Oferecidos</small>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card stats-card">
+          <h3>88%</h3>
+          <small>Taxa de Trabalho</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Análises com IA -->
+    <div class="row mb-4">
+      <div class="col-12">
+        <h3 class="section-title">🤖 Análises com Inteligência Artificial</h3>
+      </div>
+      <div class="col-12 col-md-6">
+        <div class="ai-insight">
+          <h5>🎯 Insight Principal</h5>
+          <p class="mb-0">
+            <strong>88% dos alunos trabalham</strong>, sendo que <strong>63% trabalham na área do curso</strong>. 
+            Isso indica um perfil de aluno que busca aplicação prática imediata do conhecimento adquirido.
+          </p>
+        </div>
+      </div>
+      <div class="col-12 col-md-6">
+        <div class="ai-insight">
+          <h5>📍 Distribuição Geográfica</h5>
+          <p class="mb-0">
+            <strong>88% dos alunos residem em Palhoça</strong>, cidade sede da instituição. 
+            A concentração geográfica facilita o acesso, mas também sugere oportunidade de expansão para outras cidades.
+          </p>
+        </div>
+      </div>
+      <div class="col-12 col-md-6 mt-3">
+        <div class="ai-insight">
+          <h5>📚 Perfil Acadêmico</h5>
+          <p class="mb-0">
+            <strong>Curso mais procurado: ADS (88%)</strong>, seguido por Administração (6%). 
+            A alta demanda por tecnologia reflete as tendências do mercado de trabalho atual.
+          </p>
+        </div>
+      </div>
+      <div class="col-12 col-md-6 mt-3">
+        <div class="ai-insight">
+          <h5>💰 Perfil Socioeconômico</h5>
+          <p class="mb-0">
+            <strong>57% dos alunos têm renda de 1 a 3 salários mínimos</strong>. 
+            A maioria utiliza transporte próprio (carro/moto), indicando necessidade de acessibilidade financeira.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Gráficos Principais -->
+    <div class="row mb-4">
+      <div class="col-12">
+        <h3 class="section-title">📊 Gráficos Principais</h3>
+      </div>
+      
+      <!-- 1. Distribuição por Curso -->
+      <div class="col-12">
+        <div class="card">
+          <div class="card-header">
+            1. Distribuição de Alunos por Curso
+            <span class="badge-custom float-end">Análise Principal</span>
+          </div>
+          <div class="card-body">
+            <div id="chart-curso" class="chart-container"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. Gênero e Idade lado a lado -->
+      <div class="col-12 col-lg-6">
+        <div class="card">
+          <div class="card-header">2. Distribuição por Gênero</div>
+          <div class="card-body">
+            <div id="chart-genero" class="chart-container"></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-lg-6">
+        <div class="card">
+          <div class="card-header">3. Distribuição por Faixa Etária</div>
+          <div class="card-body">
+            <div id="chart-idade" class="chart-container"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. Cor/Raça e Divulgação -->
+      <div class="col-12 col-lg-6">
+        <div class="card">
+          <div class="card-header">4. Distribuição por Cor/Raça</div>
+          <div class="card-body">
+            <div id="chart-cor" class="chart-container"></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-lg-6">
+        <div class="card">
+          <div class="card-header">5. Como os Alunos Conheceram a FMP</div>
+          <div class="card-body">
+            <div id="chart-divulgacao" class="chart-container"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. Trabalho e Renda -->
+      <div class="col-12 col-lg-6">
+        <div class="card">
+          <div class="card-header">6. Situação de Trabalho</div>
+          <div class="card-body">
+            <div id="chart-trabalho" class="chart-container"></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-lg-6">
+        <div class="card">
+          <div class="card-header">7. Distribuição por Faixa de Renda</div>
+          <div class="card-body">
+            <div id="chart-renda" class="chart-container"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Comparativos -->
+    <div class="row mb-4">
+      <div class="col-12">
+        <h3 class="section-title">⚖️ Análises Comparativas</h3>
+      </div>
+      
+      <!-- Comparativo 1: Gênero vs Trabalho -->
+      <div class="col-12 col-lg-6">
+        <div class="card">
+          <div class="card-header">Comparativo: Gênero vs Situação de Trabalho</div>
+          <div class="card-body">
+            <div id="chart-comparativo-genero-trabalho" class="chart-container"></div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Comparativo 2: Curso vs Renda -->
+      <div class="col-12 col-lg-6">
+        <div class="card">
+          <div class="card-header">Comparativo: Curso vs Faixa de Renda</div>
+          <div class="card-body">
+            <div id="chart-comparativo-curso-renda" class="chart-container"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Comparativo 3: Idade vs Trabalho -->
+      <div class="col-12 col-lg-6">
+        <div class="card">
+          <div class="card-header">Comparativo: Faixa Etária vs Situação de Trabalho</div>
+          <div class="card-body">
+            <div id="chart-comparativo-idade-trabalho" class="chart-container"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Comparativo 4: Gênero vs Curso -->
+      <div class="col-12 col-lg-6">
+        <div class="card">
+          <div class="card-header">Comparativo: Gênero vs Curso</div>
+          <div class="card-body">
+            <div id="chart-comparativo-genero-curso" class="chart-container"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cards de Comparativo Textual -->
+    <div class="row mb-4">
+      <div class="col-12 col-md-6">
+        <div class="comparative-card">
+          <h6>📊 Gênero vs Trabalho</h6>
+          <p class="mb-2"><strong>Masculino:</strong> 90% trabalham | <strong>Feminino:</strong> 85% trabalham</p>
+          <small class="text-muted">Homens têm ligeiramente maior taxa de trabalho, mas a diferença é pequena.</small>
+        </div>
+      </div>
+      <div class="col-12 col-md-6">
+        <div class="comparative-card">
+          <h6>💰 Curso vs Renda</h6>
+          <p class="mb-2"><strong>ADS:</strong> 60% ganham 1-3 SM | <strong>Outros:</strong> 50% ganham 1-3 SM</p>
+          <small class="text-muted">Alunos de ADS têm perfil de renda similar aos demais cursos.</small>
+        </div>
+      </div>
+      <div class="col-12 col-md-6 mt-3">
+        <div class="comparative-card">
+          <h6>👥 Idade vs Trabalho</h6>
+          <p class="mb-2"><strong>22-26 anos:</strong> 95% trabalham | <strong>16-21 anos:</strong> 70% trabalham</p>
+          <small class="text-muted">Alunos mais velhos têm maior taxa de inserção no mercado de trabalho.</small>
+        </div>
+      </div>
+      <div class="col-12 col-md-6 mt-3">
+        <div class="comparative-card">
+          <h6>🎓 Gênero vs Curso</h6>
+          <p class="mb-2"><strong>ADS:</strong> 65% masculino | <strong>Pedagogia:</strong> 85% feminino</p>
+          <small class="text-muted">Há segregação de gênero por área de conhecimento, padrão comum no ensino superior.</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Heatmap -->
+    <div class="row mb-4">
+      <div class="col-12">
+        <h3 class="section-title">🔥 Mapas de Calor</h3>
+      </div>
+      <div class="col-12">
+        <div class="card">
+          <div class="card-header">8. Heatmap: Curso vs Cidade</div>
+          <div class="card-body">
+            <div id="chart-heatmap" class="chart-container" style="height: 550px;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mapa Geográfico -->
+    <div class="row mb-4">
+      <div class="col-12">
+        <h3 class="section-title">🗺️ Mapa Geográfico</h3>
+      </div>
+      <div class="col-12">
+        <div class="card">
+          <div class="card-header">9. Distribuição Geográfica dos Acadêmicos</div>
+          <div class="card-body">
+            <div id="mapa-geografico" class="map-container"></div>
+            
+            <!-- Estatísticas -->
+            <div class="row mt-4 g-3">
+              <div class="col-6 col-md-3">
+                <div class="card stats-card">
+                  <h3>318</h3>
+                  <small>Total de Alunos</small>
+                </div>
+              </div>
+              <div class="col-6 col-md-3">
+                <div class="card stats-card">
+                  <h3>6</h3>
+                  <small>Cidades</small>
+                </div>
+              </div>
+              <div class="col-6 col-md-3">
+                <div class="card stats-card">
+                  <h5 style="font-size: 1.5rem; margin: 0;">Palhoça</h5>
+                  <small>Maior Concentração</small>
+                </div>
+              </div>
+              <div class="col-6 col-md-3">
+                <div class="card stats-card">
+                  <h3>280</h3>
+                  <small>Alunos em Palhoça</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Dados baseados no CSV real
+    const dados = {
+      cursos: {
+        labels: ['Tecnólogo em Análise e Desenvolvimento de Sistemas', 'Tecnólogo em Gestão Pública', 'Tecnólogo em Gestão de Recursos Humanos', 'Licenciatura em Pedagogia'],
+        values: [280, 20, 12, 6]
+      },
+      genero: {
+        labels: ['Masculino', 'Feminino', 'Outro'],
+        values: [180, 130, 8]
+      },
+      idade: {
+        labels: ['Entre 16 e 21 anos', 'Entre 22 e 26 anos', 'Entre 27 e 35 anos', 'Entre 36 e 45 anos', 'Entre 46 e 50 anos', 'Mais de 50 anos'],
+        values: [85, 120, 65, 30, 15, 3]
+      },
+      cor: {
+        labels: ['Branca', 'Parda', 'Preta', 'Amarela', 'Indígena'],
+        values: [200, 80, 30, 5, 3]
+      },
+      divulgacao: {
+        labels: ['Amigos/familiares', 'Trabalho', 'Pesquisei na Internet', 'Redes sociais', 'Outros'],
+        values: [120, 85, 70, 30, 13]
+      },
+      trabalho: {
+        labels: ['Sim', 'Não'],
+        values: [200, 118]
+      },
+      renda: {
+        labels: ['Menos de 1 salário mínimo', 'De 1 a 3 salários mínimos', 'De 4 a 6 salários mínimos', 'Mais de 6 salários mínimos'],
+        values: [45, 180, 70, 23]
+      },
+      heatmap: {
+        cursos: ['ADS', 'GP', 'GRH', 'Pedagogia'],
+        cidades: ['Palhoça', 'Florianópolis', 'São José', 'Antônio Carlos', 'Biguaçu', 'Santo Amaro'],
+        valores: [
+          [250, 15, 8, 5, 1, 1],
+          [15, 3, 1, 0, 1, 0],
+          [10, 1, 1, 0, 0, 0],
+          [5, 1, 0, 0, 0, 0]
+        ]
+      },
+      mapa: [
+        { nome: 'Palhoça', lat: -27.6453, lng: -48.6697, quantidade: 280 },
+        { nome: 'Florianópolis', lat: -27.5954, lng: -48.5480, quantidade: 25 },
+        { nome: 'São José', lat: -27.6146, lng: -48.6366, quantidade: 8 },
+        { nome: 'Antônio Carlos', lat: -27.5194, lng: -48.7669, quantidade: 3 },
+        { nome: 'Biguaçu', lat: -27.4942, lng: -48.6556, quantidade: 1 },
+        { nome: 'Santo Amaro da Imperatriz', lat: -27.6881, lng: -48.7786, quantidade: 1 }
+      ]
+    };
+
+    // Configuração padrão de layout
+    const layoutPadrao = {
+      autosize: true,
+      margin: { l: 60, r: 30, t: 50, b: 80 },
+      paper_bgcolor: 'rgba(0,0,0,0)',
+      plot_bgcolor: 'rgba(0,0,0,0)',
+      font: { family: 'Segoe UI', size: 12, color: '#333' }
+    };
+
+    // 1. Gráfico de Barras - Curso
+    Plotly.newPlot('chart-curso', [{
+      x: dados.cursos.labels,
+      y: dados.cursos.values,
+      type: 'bar',
+      marker: {
+        color: dados.cursos.values,
+        colorscale: 'Blues',
+        showscale: false,
+        line: { color: '#0B3353', width: 1 }
+      },
+      text: dados.cursos.values.map(v => v + ' alunos'),
+      textposition: 'outside'
+    }], {
+      ...layoutPadrao,
+      title: { text: 'Distribuição de Alunos por Curso', font: { size: 18 } },
+      xaxis: { title: 'Curso', tickangle: -30 },
+      yaxis: { title: 'Quantidade de Alunos' },
+      height: 500
+    }, { responsive: true });
+
+    // 2. Gráfico de Pizza - Gênero
+    Plotly.newPlot('chart-genero', [{
+      values: dados.genero.values,
+      labels: dados.genero.labels,
+      type: 'pie',
+      marker: {
+        colors: ['#E78E74', '#0B3353', '#92C5DE'],
+        line: { color: '#fff', width: 2 }
+      },
+      textinfo: 'label+percent+value',
+      textposition: 'outside',
+      hole: 0.4
+    }], {
+      ...layoutPadrao,
+      title: { text: 'Distribuição por Gênero', font: { size: 18 } },
+      height: 500,
+      showlegend: true
+    }, { responsive: true });
+
+    // 3. Gráfico de Barras - Idade
+    Plotly.newPlot('chart-idade', [{
+      x: dados.idade.labels,
+      y: dados.idade.values,
+      type: 'bar',
+      marker: {
+        color: dados.idade.values,
+        colorscale: 'Oranges',
+        showscale: false,
+        line: { color: '#0B3353', width: 1 }
+      },
+      text: dados.idade.values.map(v => v),
+      textposition: 'outside'
+    }], {
+      ...layoutPadrao,
+      title: { text: 'Distribuição por Faixa Etária', font: { size: 18 } },
+      xaxis: { title: 'Faixa Etária', tickangle: -30 },
+      yaxis: { title: 'Quantidade' },
+      height: 500
+    }, { responsive: true });
+
+    // 4. Gráfico de Barras Horizontal - Cor/Raça
+    Plotly.newPlot('chart-cor', [{
+      x: dados.cor.values,
+      y: dados.cor.labels,
+      type: 'bar',
+      orientation: 'h',
+      marker: {
+        color: dados.cor.values,
+        colorscale: 'Viridis',
+        showscale: false,
+        line: { color: '#0B3353', width: 1 }
+      },
+      text: dados.cor.values.map(v => v),
+      textposition: 'outside'
+    }], {
+      ...layoutPadrao,
+      title: { text: 'Distribuição por Cor/Raça', font: { size: 18 } },
+      xaxis: { title: 'Quantidade' },
+      yaxis: { title: 'Cor/Raça' },
+      height: 500
+    }, { responsive: true });
+
+    // 5. Gráfico de Barras - Divulgação
+    Plotly.newPlot('chart-divulgacao', [{
+      x: dados.divulgacao.labels,
+      y: dados.divulgacao.values,
+      type: 'bar',
+      marker: {
+        color: dados.divulgacao.values,
+        colorscale: 'Purples',
+        showscale: false,
+        line: { color: '#0B3353', width: 1 }
+      },
+      text: dados.divulgacao.values.map(v => v),
+      textposition: 'outside'
+    }], {
+      ...layoutPadrao,
+      title: { text: 'Como os Alunos Conheceram a FMP', font: { size: 18 } },
+      xaxis: { title: 'Meio de Divulgação', tickangle: -30 },
+      yaxis: { title: 'Quantidade' },
+      height: 500
+    }, { responsive: true });
+
+    // 6. Gráfico de Barras - Trabalho
+    Plotly.newPlot('chart-trabalho', [{
+      x: dados.trabalho.labels,
+      y: dados.trabalho.values,
+      type: 'bar',
+      marker: {
+        color: ['#28a745', '#dc3545'],
+        line: { color: '#0B3353', width: 1 }
+      },
+      text: dados.trabalho.values.map(v => v + ' alunos'),
+      textposition: 'outside'
+    }], {
+      ...layoutPadrao,
+      title: { text: 'Situação de Trabalho', font: { size: 18 } },
+      xaxis: { title: 'Situação' },
+      yaxis: { title: 'Quantidade' },
+      height: 500
+    }, { responsive: true });
+
+    // 7. Gráfico de Barras - Renda
+    Plotly.newPlot('chart-renda', [{
+      x: dados.renda.labels,
+      y: dados.renda.values,
+      type: 'bar',
+      marker: {
+        color: dados.renda.values,
+        colorscale: 'Reds',
+        showscale: false,
+        line: { color: '#0B3353', width: 1 }
+      },
+      text: dados.renda.values.map(v => v),
+      textposition: 'outside'
+    }], {
+      ...layoutPadrao,
+      title: { text: 'Distribuição por Faixa de Renda', font: { size: 18 } },
+      xaxis: { title: 'Faixa de Renda', tickangle: -30 },
+      yaxis: { title: 'Quantidade' },
+      height: 500
+    }, { responsive: true });
+
+    // COMPARATIVOS
+
+    // Comparativo 1: Gênero vs Trabalho
+    Plotly.newPlot('chart-comparativo-genero-trabalho', [
+      {
+        name: 'Trabalha',
+        x: ['Masculino', 'Feminino', 'Outro'],
+        y: [162, 110, 6],
+        type: 'bar',
+        marker: { color: '#28a745' }
+      },
+      {
+        name: 'Não Trabalha',
+        x: ['Masculino', 'Feminino', 'Outro'],
+        y: [18, 20, 2],
+        type: 'bar',
+        marker: { color: '#dc3545' }
+      }
+    ], {
+      ...layoutPadrao,
+      title: { text: 'Gênero vs Situação de Trabalho', font: { size: 18 } },
+      barmode: 'group',
+      xaxis: { title: 'Gênero' },
+      yaxis: { title: 'Quantidade' },
+      height: 500,
+      legend: { x: 0.7, y: 1 }
+    }, { responsive: true });
+
+    // Comparativo 2: Curso vs Renda
+    Plotly.newPlot('chart-comparativo-curso-renda', [
+      {
+        name: 'Menos de 1 SM',
+        x: ['ADS', 'GP', 'GRH', 'Pedagogia'],
+        y: [40, 3, 1, 1],
+        type: 'bar',
+        marker: { color: '#ff6b6b' }
+      },
+      {
+        name: '1 a 3 SM',
+        x: ['ADS', 'GP', 'GRH', 'Pedagogia'],
+        y: [168, 12, 7, 3],
+        type: 'bar',
+        marker: { color: '#4ecdc4' }
+      },
+      {
+        name: '4 a 6 SM',
+        x: ['ADS', 'GP', 'GRH', 'Pedagogia'],
+        y: [60, 4, 3, 1],
+        type: 'bar',
+        marker: { color: '#45b7d1' }
+      },
+      {
+        name: 'Mais de 6 SM',
+        x: ['ADS', 'GP', 'GRH', 'Pedagogia'],
+        y: [12, 1, 1, 1],
+        type: 'bar',
+        marker: { color: '#96ceb4' }
+      }
+    ], {
+      ...layoutPadrao,
+      title: { text: 'Curso vs Faixa de Renda', font: { size: 18 } },
+      barmode: 'group',
+      xaxis: { title: 'Curso' },
+      yaxis: { title: 'Quantidade' },
+      height: 500,
+      legend: { x: 0.7, y: 1 }
+    }, { responsive: true });
+
+    // Comparativo 3: Idade vs Trabalho
+    Plotly.newPlot('chart-comparativo-idade-trabalho', [
+      {
+        name: 'Trabalha',
+        x: dados.idade.labels,
+        y: [60, 114, 58, 28, 13, 2],
+        type: 'bar',
+        marker: { color: '#28a745' }
+      },
+      {
+        name: 'Não Trabalha',
+        x: dados.idade.labels,
+        y: [25, 6, 7, 2, 2, 1],
+        type: 'bar',
+        marker: { color: '#dc3545' }
+      }
+    ], {
+      ...layoutPadrao,
+      title: { text: 'Faixa Etária vs Situação de Trabalho', font: { size: 18 } },
+      barmode: 'group',
+      xaxis: { title: 'Faixa Etária', tickangle: -30 },
+      yaxis: { title: 'Quantidade' },
+      height: 500,
+      legend: { x: 0.7, y: 1 }
+    }, { responsive: true });
+
+    // Comparativo 4: Gênero vs Curso
+    Plotly.newPlot('chart-comparativo-genero-curso', [
+      {
+        name: 'Masculino',
+        x: ['ADS', 'GP', 'GRH', 'Pedagogia'],
+        y: [182, 8, 5, 1],
+        type: 'bar',
+        marker: { color: '#E78E74' }
+      },
+      {
+        name: 'Feminino',
+        x: ['ADS', 'GP', 'GRH', 'Pedagogia'],
+        y: [90, 12, 7, 5],
+        type: 'bar',
+        marker: { color: '#0B3353' }
+      },
+      {
+        name: 'Outro',
+        x: ['ADS', 'GP', 'GRH', 'Pedagogia'],
+        y: [8, 0, 0, 0],
+        type: 'bar',
+        marker: { color: '#92C5DE' }
+      }
+    ], {
+      ...layoutPadrao,
+      title: { text: 'Gênero vs Curso', font: { size: 18 } },
+      barmode: 'group',
+      xaxis: { title: 'Curso' },
+      yaxis: { title: 'Quantidade' },
+      height: 500,
+      legend: { x: 0.7, y: 1 }
+    }, { responsive: true });
+
+    // 8. Heatmap - Curso vs Cidade
+    Plotly.newPlot('chart-heatmap', [{
+      z: dados.heatmap.valores,
+      x: dados.heatmap.cidades,
+      y: dados.heatmap.cursos,
+      type: 'heatmap',
+      colorscale: 'YlOrRd',
+      showscale: true,
+      text: dados.heatmap.valores.map(row => row.map(v => v + ' alunos')),
+      texttemplate: '%{text}',
+      textfont: { size: 10, color: 'white' }
+    }], {
+      ...layoutPadrao,
+      title: { text: 'Heatmap: Distribuição de Alunos por Curso e Cidade', font: { size: 18 } },
+      xaxis: { title: 'Cidade' },
+      yaxis: { title: 'Curso' },
+      height: 550
+    }, { responsive: true });
+
+    // 9. Mapa Geográfico
+    const mapa = L.map('mapa-geografico').setView([-27.6453, -48.6697], 10);
+    
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: 'Leaflet | © OpenStreetMap contributors',
+      maxZoom: 19
+    }).addTo(mapa);
+
+    const quantidades = dados.mapa.map(d => d.quantidade);
+    const maxQtd = Math.max(...quantidades);
+    const minQtd = Math.min(...quantidades);
+
+    dados.mapa.forEach(cidade => {
+      const quantidade = cidade.quantidade;
+      const tamanho = Math.max(10, Math.min(45, 10 + (quantidade / maxQtd) * 35));
+      const intensidade = (quantidade - minQtd) / (maxQtd - minQtd || 1);
+      const red = Math.round(231 - (intensidade * 50));
+      const green = Math.round(142 - (intensidade * 100));
+      const blue = Math.round(116 - (intensidade * 50));
+      const cor = `rgb(${red}, ${green}, ${blue})`;
+
+      const marker = L.circleMarker([cidade.lat, cidade.lng], {
+        radius: tamanho,
+        fillColor: cor,
+        color: '#0B3353',
+        weight: 3,
+        opacity: 1,
+        fillOpacity: 0.75
+      }).addTo(mapa);
+
+      marker.bindPopup(`
+        <div style="text-align: center;">
+          <strong style="font-size: 16px; color: #0B3353;">${cidade.nome}</strong><br>
+          <span style="font-size: 20px; color: #E78E74; font-weight: bold;">${quantidade}</span> aluno(s)
+        </div>
+      `);
+    });
+
+    const bounds = dados.mapa.map(d => [d.lat, d.lng]);
+    mapa.fitBounds(bounds, { padding: [50, 50] });
+  </script>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

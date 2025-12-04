@@ -37,6 +37,12 @@ qs('arquivoSelect')?.addEventListener('change', () => {
   qs('colunaGroupBy').innerHTML = '<option value="">Nenhum agrupamento</option>';
   qs('filtersArea').innerHTML = '';
 
+  // Mostra botão do mapa se arquivo selecionado
+  const btnMapa = qs('btnMostrarMapa');
+  if (btnMapa) {
+    btnMapa.style.display = filename ? 'inline-block' : 'none';
+  }
+
   if (!filename) return;
 
   fetch('/api/columns', {

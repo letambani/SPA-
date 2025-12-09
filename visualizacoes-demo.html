@@ -184,7 +184,7 @@
         <div class="ai-insight">
           <h5>📚 Perfil Acadêmico</h5>
           <p class="mb-0">
-            <strong>Curso mais procurado: ADS (88%)</strong>, seguido por Administração (6%). 
+            <strong>Curso mais procurado: ADS (88%)</strong>, seguido por ADM (6%). 
             A alta demanda por tecnologia reflete as tendências do mercado de trabalho atual.
           </p>
         </div>
@@ -416,7 +416,7 @@
     // Dados baseados no CSV real
     const dados = {
       cursos: {
-        labels: ['Tecnólogo em Análise e Desenvolvimento de Sistemas', 'Tecnólogo em Gestão Pública', 'Tecnólogo em Gestão de Recursos Humanos', 'Licenciatura em Pedagogia'],
+        labels: ['ADS', 'ADM', 'GRH', 'Pedagogia'],
         values: [280, 20, 12, 6]
       },
       genero: {
@@ -444,7 +444,7 @@
         values: [45, 180, 70, 23]
       },
       heatmap: {
-        cursos: ['ADS', 'GP', 'GRH', 'Pedagogia'],
+        cursos: ['ADS', 'ADM', 'GRH', 'Pedagogia'],
         cidades: ['Palhoça', 'Florianópolis', 'São José', 'Antônio Carlos', 'Biguaçu', 'Santo Amaro'],
         valores: [
           [250, 15, 8, 5, 1, 1],
@@ -648,28 +648,28 @@
     Plotly.newPlot('chart-comparativo-curso-renda', [
       {
         name: 'Menos de 1 SM',
-        x: ['ADS', 'GP', 'GRH', 'Pedagogia'],
+        x: ['ADS', 'ADM', 'GRH', 'Pedagogia'],
         y: [40, 3, 1, 1],
         type: 'bar',
         marker: { color: '#ff6b6b' }
       },
       {
         name: '1 a 3 SM',
-        x: ['ADS', 'GP', 'GRH', 'Pedagogia'],
+        x: ['ADS', 'ADM', 'GRH', 'Pedagogia'],
         y: [168, 12, 7, 3],
         type: 'bar',
         marker: { color: '#4ecdc4' }
       },
       {
         name: '4 a 6 SM',
-        x: ['ADS', 'GP', 'GRH', 'Pedagogia'],
+        x: ['ADS', 'ADM', 'GRH', 'Pedagogia'],
         y: [60, 4, 3, 1],
         type: 'bar',
         marker: { color: '#45b7d1' }
       },
       {
         name: 'Mais de 6 SM',
-        x: ['ADS', 'GP', 'GRH', 'Pedagogia'],
+        x: ['ADS', 'ADM', 'GRH', 'Pedagogia'],
         y: [12, 1, 1, 1],
         type: 'bar',
         marker: { color: '#96ceb4' }
@@ -714,21 +714,21 @@
     Plotly.newPlot('chart-comparativo-genero-curso', [
       {
         name: 'Masculino',
-        x: ['ADS', 'GP', 'GRH', 'Pedagogia'],
+        x: ['ADS', 'ADM', 'GRH', 'Pedagogia'],
         y: [182, 8, 5, 1],
         type: 'bar',
         marker: { color: '#E78E74' }
       },
       {
         name: 'Feminino',
-        x: ['ADS', 'GP', 'GRH', 'Pedagogia'],
+        x: ['ADS', 'ADM', 'GRH', 'Pedagogia'],
         y: [90, 12, 7, 5],
         type: 'bar',
         marker: { color: '#0B3353' }
       },
       {
         name: 'Outro',
-        x: ['ADS', 'GP', 'GRH', 'Pedagogia'],
+        x: ['ADS', 'ADM', 'GRH', 'Pedagogia'],
         y: [8, 0, 0, 0],
         type: 'bar',
         marker: { color: '#92C5DE' }

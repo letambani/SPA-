@@ -519,6 +519,10 @@ def api_grafico():
 
     resultados = []
 
+    # Aplica abreviação de cursos se o groupby for de curso
+    if groupby and 'curso' in groupby.lower():
+        df1 = aplicar_abreviacao_cursos(df1, groupby)
+    
     # ---------- se groupby informado => percorrer grupos (base) ----------
     grupos = [None]  # None significa "todo o arquivo"
     if groupby:

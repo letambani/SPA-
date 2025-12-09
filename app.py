@@ -342,6 +342,65 @@ def load_csv(filename):
     return pd.read_csv(path)
 
 
+def abreviar_curso(nome_curso):
+    """
+    Abrevia nomes de cursos para exibição nos gráficos.
+    Retorna a abreviação correspondente ou o nome original se não houver mapeamento.
+    """
+    if pd.isna(nome_curso):
+        return nome_curso
+    
+    nome_str = str(nome_curso).strip()
+    
+    # Mapeamento de nomes completos para abreviações
+    mapeamento = {
+        # Análise e Desenvolvimento de Sistemas
+        'tecnólogo em análise e desenvolvimento de sistemas': 'ADS',
+        'análise e desenvolvimento de sistemas': 'ADS',
+        'ads': 'ADS',
+        'análise e desenvolvimento': 'ADS',
+        'analise e desenvolvimento de sistemas': 'ADS',
+        
+        # Administração / Gestão Pública
+        'tecnólogo em gestão pública': 'ADM',
+        'gestão pública': 'ADM',
+        'administração': 'ADM',
+        'adm': 'ADM',
+        'gestao publica': 'ADM',
+        
+        # Gestão de Recursos Humanos
+        'tecnólogo em gestão de recursos humanos': 'GRH',
+        'gestão de recursos humanos': 'GRH',
+        'grh': 'GRH',
+        'gestao de recursos humanos': 'GRH',
+        'recursos humanos': 'GRH',
+        
+        # Pedagogia
+        'licenciatura em pedagogia': 'Pedagogia',
+        'pedagogia': 'Pedagogia',
+    }
+    
+    # Busca case-insensitive
+    nome_lower = nome_str.lower()
+    for chave, abreviacao in mapeamento.items():
+        if chave in nome_lower or nome_lower in chave:
+            return abreviacao
+    
+    # Se não encontrou, retorna o nome original
+    return nome_str
+
+
+def aplicar_abreviacao_cursos(df, coluna_curso):
+    """
+    Aplica abreviação de cursos em uma coluna específica do DataFrame.
+    Retorna o DataFrame modificado.
+    """
+    if coluna_curso and coluna_curso in df.columns:
+        df = df.copy()
+        df[coluna_curso] = df[coluna_curso].apply(abreviar_curso)
+    return df
+
+
 # ---------------- INDEX DOS GRÁFICOS ----------------
 @app.route('/analises')
 @login_required
@@ -420,6 +479,10 @@ def api_grafico():
 
     df1 = apply_filters(df1, filtros)
 
+    # Aplica abreviação de cursos se a coluna for de curso
+    if 'curso' in coluna.lower():
+        df1 = aplicar_abreviacao_cursos(df1, coluna)
+    
     # função auxiliar: gerar figura de contagem por 'coluna' a partir de um dataframe
     def fig_from_df(df, title_suffix=""):
         # trata NA como string 'N/A' para exibir
@@ -482,6 +545,9 @@ def api_grafico():
             return jsonify(error=f"O agrupamento '{groupby}' não existe em {compare_with}"), 400
         # aplicar mesmos filtros (aplicados ao df1) também ao df2
         df2 = apply_filters(df2, filtros)
+        # Aplica abreviação de cursos se a coluna for de curso
+        if 'curso' in coluna.lower():
+            df2 = aplicar_abreviacao_cursos(df2, coluna)
 
     # ---------- para cada grupo (ou geral) gerar gráficos e comparar ----------
     for g in grupos:
@@ -705,7 +771,9 @@ def api_visualizacoes_completas():
                 break
         
         if coluna_curso:
-            curso_counts = df[coluna_curso].value_counts()
+            # Aplica abreviação de cursos
+            df_curso = aplicar_abreviacao_cursos(df.copy(), coluna_curso)
+            curso_counts = df_curso[coluna_curso].value_counts()
             fig_curso = px.bar(
                 x=curso_counts.index,
                 y=curso_counts.values,
@@ -789,7 +857,9 @@ def api_visualizacoes_completas():
                     break
             
             if coluna_cidade:
-                pivot = pd.crosstab(df[coluna_curso], df[coluna_cidade], margins=False)
+                # Aplica abreviação de cursos antes de criar o heatmap
+                df_heatmap = aplicar_abreviacao_cursos(df.copy(), coluna_curso)
+                pivot = pd.crosstab(df_heatmap[coluna_curso], df_heatmap[coluna_cidade], margins=False)
                 fig_heatmap = px.imshow(
                     pivot.values,
                     labels=dict(x="Cidade", y="Curso", color="Quantidade"),
